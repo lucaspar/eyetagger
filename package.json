@@ -9,6 +9,7 @@
     },
     "dependencies": {
         "axios": "^0.18.0",
+        "fabric": "^3.6.3",
         "js-cookie": "^2.2.0",
         "paper": "^0.12.4",
         "vue": "^2.5.17",
