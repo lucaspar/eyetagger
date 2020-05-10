@@ -1,11 +1,15 @@
 <template>
-    <div id="app">
-        <h1>Iris Annotation Tool</h1>
-        <div id="nav">
-            <router-link :to="{ name: 'home' }">Home</router-link> |
-            <router-link :to="{ name: 'annotation' }">Annotation Demo</router-link> |
-            <router-link :to="{ name: 'visualization' }">Visualization Demo</router-link>
-        </div>
+    <div class="section" id="app">
+        <b-navbar>
+            <template slot="start">
+                <h1 class="title is-2">Iris Annotation Tool</h1>
+            </template>
+            <template slot="end">
+                <b-navbar-item><router-link :to="{ name: 'home' }">Home</router-link></b-navbar-item>
+                <b-navbar-item><router-link :to="{ name: 'annotation' }">Annotation Demo</router-link></b-navbar-item>
+                <b-navbar-item><router-link :to="{ name: 'visualization' }">Visualization Demo</router-link></b-navbar-item>
+            </template>
+        </b-navbar>
         <router-view />
     </div>
 </template>
@@ -15,8 +19,8 @@
     font-family: "Avenir", Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    text-align: center;
     color: #2c3e50;
     margin-top: 60px;
+    padding-top: 0;
 }
 </style>

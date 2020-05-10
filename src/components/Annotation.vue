@@ -1,17 +1,6 @@
 <template>
-    <div class="vis">
+    <div class="section ann">
         <Canvas></Canvas>
-        <div id="control-panel">
-            <h3>Controls</h3>
-            <ul>
-                <li id="btn-previous">Previous</li>
-                <li id="btn-next">Next</li>
-                <li id="btn-undo">Undo</li>
-                <li id="btn-redo">Redo</li>
-                <li id="btn-brush">Brush</li>
-                <li id="btn-eraser">Eraser</li>
-            </ul>
-        </div>
     </div>
 </template>
 
@@ -26,8 +15,9 @@ export default {
 </script>
 
 <style scoped>
-.vis {
+.ann {
     background-color: #fff;
+    padding-top: 0;
 }
 #control-panel {
     background: #eee;

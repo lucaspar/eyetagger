@@ -1,6 +1,6 @@
 <template>
     <div class="vis">
-        <h3>Visualization</h3>
+        <!-- <h3>Visualization</h3> -->
         <canvas id="main-canvas"></canvas>
     </div>
 </template>

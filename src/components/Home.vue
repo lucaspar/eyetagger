@@ -1,7 +1,7 @@
 <template>
     <div class="home">
         <img src='@/assets/logo-iris.png'>
-        <p>Annotation tool for pixel-based iris masks.</p>
+        <p>Annotation tool for creation of iris masks.</p>
     </div>
 </template>
 
