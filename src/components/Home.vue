@@ -1,7 +1,9 @@
 <template>
-    <div class="home">
-        <img src='@/assets/logo-iris.png'>
-        <p>Annotation tool for creation of iris masks.</p>
+    <div class="columns is-centered">
+        <div class="column is-narrow has-text-centered">
+            <img class="" src='@/assets/logo-iris.png'>
+            <p>Annotation tool for creation of iris masks.</p>
+        </div>
     </div>
 </template>
 

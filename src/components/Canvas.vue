@@ -10,10 +10,10 @@
             <div class="columns is-centered">
                 <div class="column is-2" id="control-panel">
                     <div class="columns is-multiline">
-                        <div class="column is-6"><button class="button is-info" id="btn-previous">   <b-icon pack="fas" icon="chevron-left">     </b-icon> <span>(Q) Previous</span> </button>   </div>
-                        <div class="column is-6"><button class="button is-info" id="btn-next">       <b-icon pack="fas" icon="chevron-right">    </b-icon> <span>(E) Next</span>     </button>   </div>
-                        <div class="column is-6"><button class="button is-info" id="btn-undo">       <b-icon pack="fas" icon="undo">             </b-icon> <span>(Z) Undo</span>     </button>   </div>
-                        <div class="column is-6"><button class="button is-info" id="btn-redo">       <b-icon pack="fas" icon="redo">             </b-icon> <span>(X) Redo</span>     </button>   </div>
+                        <div class="column is-6"><button class="button is-info" id="btn-previous">   <b-icon pack="fas" icon="chevron-left">     </b-icon> <span>Previous (Q)</span> </button>   </div>
+                        <div class="column is-6"><button class="button is-info" id="btn-next">       <b-icon pack="fas" icon="chevron-right">    </b-icon> <span>Next (E)</span>     </button>   </div>
+                        <div class="column is-6"><button class="button is-info" id="btn-undo">       <b-icon pack="fas" icon="undo">             </b-icon> <span>Undo (Z)</span>     </button>   </div>
+                        <div class="column is-6"><button class="button is-info" id="btn-redo">       <b-icon pack="fas" icon="redo">             </b-icon> <span>Redo (X)</span>     </button>   </div>
                         <div class="column is-6 is-offset-3"><button class="button is-info" id="btn-brush">      <b-icon pack="fas" icon="brush">            </b-icon> <span>Brush</span>    </button>   </div>
                         <!-- <div class="column is-6"><button class="button is-info" id="btn-eraser">     <b-icon pack="fas" icon="eraser">           </b-icon> <span>Eraser</span>   </button>   </div> -->
                     </div>
