@@ -9,7 +9,7 @@ Used [this Vue + Django template](https://github.com/gtalarico/django-vue-templa
 ## Includes
 
 + Django web server
-+ Django admin panel at `/admin/`
++ Django admin panel at `/api/admin/`
 + Django REST API
 + Django Whitenoise to serve static files, and CDN Ready
 + Vue CLI 3 to create the front-end
@@ -18,7 +18,7 @@ Used [this Vue + Django template](https://github.com/gtalarico/django-vue-templa
 + Gunicorn - WSGI / translates HTTP requests into Python commands
 + Configuration for Heroku Deployment
 
-## 1. Running Project
+## 1. Execution
 
 ### 1.1. Dependencies
 
@@ -128,7 +128,16 @@ git push heroku
 
 Heroku's nodejs buildpack will handle install for all the dependencies from the [`package.json`](/package.json) file. It will then trigger the `postinstall` command which calls `yarn build`. This will create the bundled `dist` folder which will be served by whitenoise. The python buildpack will detect the [`Pipfile`](/Pipfile) and install all the Python dependencies. The [`Procfile`](/Procfile) will run Django migrations and then launch Django's app using Gunicorn, as recommended by Heroku.
 
-## 3. Template Structure
+## 3. Management
+
+### 3.1 Dashboards
+
+Feature | Default location | Comment
+------- | ---------------- | -------
+Django REST Framework | http://localhost:8000/api | Only available in development (_i.e._ `DEBUG=True`)
+Django Administration Panel | http://localhost:8000/api/admin | Credentials created with `python manage.py createsuperuser`
+
+### 3.2 Template Structure
 
 | Location             |  Content                                   |
 |----------------------|--------------------------------------------|
