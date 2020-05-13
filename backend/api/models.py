@@ -10,7 +10,7 @@ class Message(models.Model):
 
 class Image(models.Model):
     location = models.CharField(max_length=200)
-    imgID = models.CharField(max_length=100)
+    imgID = models.CharField(max_length=100, unique=True)
     annotations = ArrayField(models.TextField(blank=True), default=list)
 
 
