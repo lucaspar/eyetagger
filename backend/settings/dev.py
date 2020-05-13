@@ -29,6 +29,7 @@ BASE_DIR = os.path.dirname(SETTINGS_DIR)
 
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env('DEBUG')
+DJANGO_DEBUG = DEBUG
 ALLOWED_HOSTS = ['*']
 
 # Application definition
@@ -44,6 +45,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'backend.api',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 50
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -74,7 +80,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'backend.wsgi.application'
+# WSGI_APPLICATION = 'backend.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases

@@ -7,11 +7,12 @@ name = "pypi"
 django = "*"
 djangorestframework = "*"
 gunicorn = "*"
-whitenoise = "==4.0"
 dj-database-url = "*"
 psycopg2-binary = "*"
 django-environ = "*"
 yapf = "*"
+applicationinsights = "*"
+whitenoise = "==5"
 
 [dev-packages]
 
