@@ -1,7 +1,7 @@
 <template>
-    <div class="cnv section columns is-multiline">
-        <div class="image_id">
-            <small>ID: {{ canvas_image.imgID.substr(canvas_image.imgID.length - 10) }}</small>
+    <div ref='cnv' class="cnv section columns is-multiline" @keyup.left="prevImage" @keyup.81="prevImage" @keyup.right="nextImage" @keyup.69="nextImage">
+        <div v-if="imgID_short" class="image_id">
+            <small>ID: {{ imgID_short }}</small>
         </div>
         <div class="center column is-full">
             <h4 class="title is-4 has-text-centered">Iris {{ canvas_image.pk }}</h4>
@@ -10,8 +10,8 @@
             <div class="columns is-centered">
                 <div class="column is-2" id="control-panel">
                     <div class="columns is-multiline">
-                        <div class="column is-6"><button class="button is-info" id="btn-previous">   <b-icon pack="fas" icon="chevron-left">     </b-icon> <span>Previous (Q)</span> </button>   </div>
-                        <div class="column is-6"><button class="button is-info" id="btn-next">       <b-icon pack="fas" icon="chevron-right">    </b-icon> <span>Next (E)</span>     </button>   </div>
+                        <div class="column is-6"><button class="button is-info" id="btn-previous"   @click="prevImage"> <b-icon pack="fas" icon="chevron-left">     </b-icon> <span>Previous (Q)</span> </button>   </div>
+                        <div class="column is-6"><button class="button is-info" id="btn-next"       @click="nextImage"> <b-icon pack="fas" icon="chevron-right">    </b-icon> <span>Next (E)</span>     </button>   </div>
                         <div class="column is-6"><button class="button is-info" id="btn-undo">       <b-icon pack="fas" icon="undo">             </b-icon> <span>Undo (Z)</span>     </button>   </div>
                         <div class="column is-6"><button class="button is-info" id="btn-redo">       <b-icon pack="fas" icon="redo">             </b-icon> <span>Redo (X)</span>     </button>   </div>
                         <div class="column is-6 is-offset-3"><button class="button is-info" id="btn-brush">      <b-icon pack="fas" icon="brush">            </b-icon> <span>Brush</span>    </button>   </div>
@@ -53,8 +53,22 @@ export default {
             'annotations',
             'sequential_counter',
         ]),
+        imgID_short: function() {
+            if (this.canvas_image && this.canvas_image.imgID) {
+                return this.canvas_image.imgID.substr(this.canvas_image.imgID.length - 10)
+            }
+            return undefined
+        }
     },
     methods: {
+
+        prevImage: function() {
+            this.$store.dispatch('images/decSeqCounter')
+        },
+
+        nextImage: function() {
+            this.$store.dispatch('images/incSeqCounter')
+        },
 
         update_canvas_image: function() {
 
@@ -166,6 +180,7 @@ export default {
         }
     },  // end of 'watch'
     mounted() {
+        this.$refs['cnv'].focus();
         this.update_canvas_display()
     },
 }
