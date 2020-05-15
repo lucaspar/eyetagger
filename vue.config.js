@@ -1,4 +1,5 @@
 // const IS_PRODUCTION = process.env.NODE_ENV === 'production'
+process.env.VUE_APP_DATASET_ROOT = "http://localhost:8000/static/data/images"
 
 module.exports = {
     outputDir: 'dist',
@@ -15,7 +16,11 @@ module.exports = {
             '/api*': {
                 // Forward frontend dev server request for /api to django dev server
                 target: 'http://localhost:8000/',
-            }
+            },
+            // '/static/*': {
+            //     // Forward frontend dev server request for /api to django dev server
+            //     target: 'http://localhost:8000/',
+            // }
         },
         disableHostCheck: true,
     }
