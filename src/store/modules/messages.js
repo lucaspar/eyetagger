@@ -1,7 +1,7 @@
-import messageService from '../../services/messageService'
+import messageService from '@/services/messageService'
 
 const state = {
-    messages: []
+    messages: [],
 }
 
 const getters = {
@@ -26,7 +26,7 @@ const actions = {
     deleteMessage({ commit }, msgId) {
         messageService.deleteMessage(msgId)
         commit('deleteMessage', msgId)
-    }
+    },
 }
 
 const mutations = {
@@ -38,7 +38,7 @@ const mutations = {
     },
     deleteMessage(state, msgId) {
         state.messages = state.messages.filter(obj => obj.pk !== msgId)
-    }
+    },
 }
 
 export default {

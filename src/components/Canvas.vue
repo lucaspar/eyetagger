@@ -1,10 +1,10 @@
 <template>
     <div class="cnv section columns is-multiline">
-        <div class="right">
-            <small>{{ iris_sample.id }}</small>
+        <div class="image_id">
+            <small>ID: {{ canvas_image.imgID.substr(canvas_image.imgID.length - 10) }}</small>
         </div>
         <div class="center column is-full">
-            <h4 class="title is-4 has-text-centered">Iris {{ iris_sample.number }}</h4>
+            <h4 class="title is-4 has-text-centered">Iris {{ canvas_image.pk }}</h4>
         </div>
         <div class="column is-full">
             <div class="columns is-centered">
@@ -31,8 +31,9 @@
 
 <script>
 // import annotator from '@/services/annotator'
-import iris_sample_path from '@/assets/iris-sample-single.png'
+// import iris_sample_path from '@/assets/iris-sample-single.png'
 import { fabric } from 'fabric'
+import { mapState } from 'vuex'
 
 export default {
     name: 'Canvas',
@@ -43,69 +44,129 @@ export default {
             paths_group: new fabric.Group(),
             context: null,
             image: null,
-            iris_sample: {
-                id: "checksum89abcdef",
-                path: "location/in/server.png",
-                number: 1,
-            },
+            canvas_image: {},
         }
     },
-    mounted() {
+    computed: {
+        ...mapState('images', [
+            'images',
+            'annotations',
+            'sequential_counter',
+        ]),
+    },
+    methods: {
 
-        // get canvas
-        const canvas = this.$refs['main-canvas']
-        const main_canvas = new fabric.Canvas(canvas)
-        const vis_canvas = new fabric.Canvas(this.$refs['vis-canvas'])
-        this.context = canvas.getContext('2d')
+        update_canvas_image: function() {
 
-        // set up iris image
-        const img = new window.Image()
-        this.image = img
-        img.src = iris_sample_path
-        img.onload = () => {
+            // need both counter and list of images to update canvas image
+            if (this.sequential_counter == undefined || this.images == undefined) {
+                return
+            }
 
-            // prepare visualization canvas
-            vis_canvas.isDrawingMode = false
-            vis_canvas.setBackgroundImage(iris_sample_path, vis_canvas.renderAll.bind(vis_canvas))
-            vis_canvas.setDimensions({ width: img.naturalWidth, height: img.naturalHeight })
-            // vis_canvas.renderAll();
+            let canvas_image = this.images.filter(el => el.pk >= this.sequential_counter)
+            canvas_image = canvas_image.length > 0 ? canvas_image[0] : canvas_image
+            if (canvas_image && canvas_image.pk != this.sequential_counter){
+                console.log("NEW_PK:", canvas_image)
+                this.$store.dispatch('images/setSeqCounter', canvas_image.pk)
+            }
+            this.canvas_image = canvas_image
+            console.log("Updated canvas image:", canvas_image)
+        },
 
-            // prepare main canvas
-            main_canvas.isDrawingMode = true
-            main_canvas.setBackgroundImage(iris_sample_path, main_canvas.renderAll.bind(main_canvas))
-            main_canvas.setDimensions({ width: img.naturalWidth, height: img.naturalHeight })
-            main_canvas.renderAll();
+        update_canvas_display: function() {
 
-            // set brush properties
-            main_canvas.freeDrawingBrush.width = 20
-            main_canvas.freeDrawingBrush.color = "#f005"
+            // get canvas
+            const canvas = this.$refs['main-canvas']
+            this.canvas = this.canvas ? this.canvas : {}
+            this.canvas.main_canvas = this.canvas.main_canvas ?
+                this.canvas.main_canvas :
+                new fabric.Canvas(canvas)
+            this.canvas.vis_canvas = this.canvas.vis_canvas ?
+                this.canvas.vis_canvas :
+                new fabric.Canvas(this.$refs['vis-canvas'])
+            // this.context = canvas.getContext('2d')
 
+            // if there's no image to show, there's nothing else to do
+            console.log(this.canvas_image);
+
+            if (this.canvas_image == undefined || !this.canvas_image.imgID) {
+                return
+            }
+
+            // set up iris image
+            if (!this.image) {
+                this.image = new window.Image()
+            }
+            this.canvas_image_source = process.env.VUE_APP_DATASET_ROOT + this.canvas_image.imgStaticPath
+            this.image.src = "";
+            this.image.src = this.canvas_image_source
+            console.log("SOURCE 1:", this.image.src);
+            this.image.onerror = a => {
+                console.log("Err:", a, this.image.src);
+            }
+            this.image.onload = () => {
+
+                console.log("LOADED:", this.canvas_image_source);
+
+                // prepare visualization canvas
+                this.canvas.vis_canvas.isDrawingMode = false
+                this.canvas.vis_canvas.setBackgroundImage(this.canvas_image_source, this.canvas.vis_canvas.renderAll.bind(this.canvas.vis_canvas))
+                this.canvas.vis_canvas.setDimensions({ width: this.image.naturalWidth, height: this.image.naturalHeight })
+                // this.canvas.vis_canvas.renderAll();
+
+                // prepare main canvas
+                this.canvas.main_canvas.isDrawingMode = true
+                this.canvas.main_canvas.setBackgroundImage(this.canvas_image_source, this.canvas.main_canvas.renderAll.bind(this.canvas.main_canvas))
+                this.canvas.main_canvas.setDimensions({ width: this.image.naturalWidth, height: this.image.naturalHeight })
+                this.canvas.main_canvas.renderAll();
+
+                // set brush properties
+                this.canvas.main_canvas.freeDrawingBrush.width = 20
+                this.canvas.main_canvas.freeDrawingBrush.color = "#f005"
+
+            }
+
+            this.canvas.main_canvas.on('mouse:up', () => {
+
+                // disolve existing group
+                this.paths_group._restoreObjectsState()
+                this.canvas.main_canvas.remove(this.paths_group)
+
+                // select all objects for re-grouping
+                const objs = this.canvas.main_canvas.getObjects().map( o => o.set('active', true) )
+                this.paths_group = new fabric.Group(objs, {
+                    originX: 'center',
+                    originY: 'center',
+                })
+                const items = this.canvas.main_canvas.getObjects()
+                console.log("Objects count:", items.length);
+
+                // cloning an object
+                // const new_item = fabric.util.object.clone(items[items.length-1])
+                // new_item.set("top", new_item.top + 5)
+                // new_item.set("left", new_item.left + 5)
+                // new_item.set("fill", "#0f0");
+                // this.canvas.main_canvas.add(new_item)
+
+            })
+
+            console.log("Updated canvas display")
         }
 
-        main_canvas.on('mouse:up', () => {
-
-            // disolve existing group
-            this.paths_group._restoreObjectsState()
-            main_canvas.remove(this.paths_group)
-
-            // select all objects for re-grouping
-            const objs = main_canvas.getObjects().map( o => o.set('active', true) )
-            this.paths_group = new fabric.Group(objs, {
-                originX: 'center',
-                originY: 'center',
-            })
-            const items = main_canvas.getObjects()
-            console.log("Objects count:", items.length);
-
-            // cloning an object
-            // const new_item = fabric.util.object.clone(items[items.length-1])
-            // new_item.set("top", new_item.top + 5)
-            // new_item.set("left", new_item.left + 5)
-            // new_item.set("fill", "#0f0");
-            // main_canvas.add(new_item)
-
-        })
-
+    },  // end of 'methods'
+    watch: {
+        images: {
+            handler: 'update_canvas_image',
+        },
+        sequential_counter: {
+            handler: 'update_canvas_image',
+        },
+        canvas_image: {
+            handler: 'update_canvas_display',
+        }
+    },  // end of 'watch'
+    mounted() {
+        this.update_canvas_display()
     },
 }
 </script>
@@ -119,9 +180,12 @@ export default {
     border: 1px solid #09f;
     border-radius: 0.5em;
 }
-.right {
+.image_id {
+    font-family: 'Courier New', Courier, monospace;
     text-align: right;
     position: absolute;
+    font-size: 9pt;
+    color: #888;
     margin: 1em;
     right: 0;
     top: 0;

@@ -14,6 +14,25 @@
     </div>
 </template>
 
+<script>
+// import { mapState } from 'vuex'
+
+export default {
+    name: "App",
+    created() {
+        // get available images once app is created
+        this.$store.dispatch('images/getImages')
+    },
+    // computed: mapState({
+    //     images: state => state.images.images
+    // }),
+    // methods: mapActions('messages', [
+    //     'addMessage',
+    //     'deleteMessage'
+    // ]),
+}
+</script>
+
 <style>
 #app {
     font-family: "Avenir", Helvetica, Arial, sans-serif;
