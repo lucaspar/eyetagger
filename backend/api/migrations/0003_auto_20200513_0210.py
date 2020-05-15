@@ -30,18 +30,20 @@ def import_dataset(apps, schema_editor):
     # version than this migration expects, so we use the historical version.
 
     Image = apps.get_model("api", "Image")
-    DATASET_PATH = ["backend", "dataset", "images/"]
-    dataset_images = glob.glob(os.path.join(settings.BASE_DIR, *DATASET_PATH, "*.tiff"))
+    STATIC_ROOT = settings.STATIC_ROOT
+    DATASET_ROOT = settings.DATASET_ROOT
+    dataset_images = glob.glob(os.path.join(DATASET_ROOT, "*.png"))
     dataset_images = dataset_images[:100]   # cap to first 100 images
-
-    # for img in Image.objects.all():
-    #     person.save()
 
     # for each image file, create a database entry
     print("\n\tAdding to database the entries for {} images found...".format(len(dataset_images)))
     for img_path in dataset_images:
         imgID = checksum(img_path)
-        img = Image(imgID=imgID, location=img_path, annotations=[])
+        extension = img_path.split('/')[-1].split('.')
+        extension = extension[-1] if len(extension) > 1 else ""
+        img_static_path = img_path.split(DATASET_ROOT)[1]
+        print(img_static_path)
+        img = Image(imgID=imgID, extension=extension, imgStaticPath=img_static_path)
         img.save()
 
 

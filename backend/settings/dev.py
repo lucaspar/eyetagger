@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'whitenoise.runserver_nostatic',  # < Per Whitenoise, to disable built in
+    'whitenoise.runserver_nostatic',  # overrides django behavior, to use whitenoise instead
     'django.contrib.staticfiles',
     'rest_framework',
     'backend.api',
@@ -133,16 +133,11 @@ MIDDLEWARE_CLASSES = (
     'whitenoise.middleware.WhiteNoiseMiddleware',
 )
 
-STATIC_URL = '/static/'
-# Place static in the same location as webpack build files
-STATIC_ROOT = os.path.join(BASE_DIR, 'dist', 'static')
+# Static files
+STATIC_URL = '/static/'                                     # modify here for CDN hosting, including the CDN domain in front
+STATIC_ROOT = os.path.join(BASE_DIR, 'dist', 'static')      # static files in the same location as webpack build files
+DATASET_ROOT = os.path.join(STATIC_ROOT, 'data', 'images')  # dataset files
 STATICFILES_DIRS = []
-
-
-##########
-# STATIC #
-##########
-
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Insert Whitenoise Middleware at top but below Security Middleware

@@ -9,9 +9,9 @@ class Message(models.Model):
 
 
 class Image(models.Model):
-    location = models.CharField(max_length=200)
     imgID = models.CharField(max_length=100, unique=True)
-    annotations = ArrayField(models.TextField(blank=True), default=list)
+    extension = models.CharField(max_length=15, blank=True, default="")
+    imgStaticPath = models.CharField(max_length=200)
 
 
 class MessageSerializer(serializers.HyperlinkedModelSerializer):
@@ -23,4 +23,4 @@ class MessageSerializer(serializers.HyperlinkedModelSerializer):
 class ImageSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Image
-        fields = ('imgID', 'location', 'annotations', 'pk')
+        fields = ('imgID', 'extension', 'imgStaticPath', 'pk')

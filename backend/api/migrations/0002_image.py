@@ -15,9 +15,9 @@ class Migration(migrations.Migration):
             name='Image',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('location', models.CharField(max_length=200)),
-                ('imgID', models.CharField(max_length=100)),
-                ('annotations', django.contrib.postgres.fields.ArrayField(base_field=models.TextField(), size=None)),
+                ('imgID', models.CharField(max_length=100, unique=True)),
+                ('extension', models.CharField(max_length=15, blank=True, default="")),
+                ('imgStaticPath', models.CharField(max_length=200)),
             ],
         ),
     ]
