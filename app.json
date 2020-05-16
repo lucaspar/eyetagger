@@ -1,13 +1,12 @@
 {
-    "name": "Django VueJs Template",
+    "name": "Iris Annotation Tool",
     "description": "",
-    "repository": "https://github.com/gtalarico/django-vue-template",
+    "repository": "https://github.com/lucaspar/iris-annotator",
     "keywords": [
+        "iris",
+        "annotation",
         "django",
-        "vue",
-        "vuejs",
-        "template",
-        "django rest framework"
+        "vue"
     ],
     "env": {
         "DJANGO_SETTINGS_MODULE": {
