@@ -5,6 +5,7 @@ export default axios.create({
     baseURL: '/api',
     timeout: 5000,
     headers: {
+        // 'Content-Type': 'multipart/form-data',
         'Content-Type': 'application/json',
         'X-CSRFToken': Cookies.get('csrftoken')
     }

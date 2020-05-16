@@ -6,7 +6,8 @@ export default {
         return api.get(`images/`).then(response => response.data)
     },
 
-    postAnnotation(payload) {
+    postAnnotations(payload) {
+        console.log("SENDING PAYLOAD:", payload);
         return api.post(`annotations/`, payload).then(response => response.data)
     },
 

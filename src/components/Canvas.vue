@@ -7,14 +7,16 @@
             <h4 class="title is-4 has-text-centered">Iris #{{ this.sequential_counter + 1 }}</h4>
         </div>
         <div class="column is-full">
-            <div class="columns is-centered">
+            <div class="columns is-multiline is-centered">
                 <div class="column is-2" id="control-panel">
                     <div class="columns is-multiline">
                         <div class="column is-6"><button class="button is-info" id="btn-previous"   @click="prevImage"> <b-icon pack="fas" icon="chevron-left">     </b-icon> <span>Previous (Q)</span> </button>   </div>
                         <div class="column is-6"><button class="button is-info" id="btn-next"       @click="nextImage"> <b-icon pack="fas" icon="chevron-right">    </b-icon> <span>Next (E)</span>     </button>   </div>
-                        <div class="column is-6"><button class="button is-info" id="btn-undo">       <b-icon pack="fas" icon="undo">             </b-icon> <span>Undo (Z)</span>     </button>   </div>
-                        <div class="column is-6"><button class="button is-info" id="btn-redo">       <b-icon pack="fas" icon="redo">             </b-icon> <span>Redo (X)</span>     </button>   </div>
-                        <div class="column is-6 is-offset-3"><button class="button is-info" id="btn-brush">      <b-icon pack="fas" icon="brush">            </b-icon> <span>Brush</span>    </button>   </div>
+                        <div class="column is-6"><button class="button is-info" id="btn-undo">       <b-icon pack="fas" icon="undo">        </b-icon> <span>Undo (Z)</span>     </button>   </div>
+                        <div class="column is-6"><button class="button is-info" id="btn-redo">       <b-icon pack="fas" icon="redo">        </b-icon> <span>Redo (X)</span>     </button>   </div>
+                        <div class="column is-6 is-offset-3"><button class="button is-info" id="btn-brush"> <b-icon pack="fas" icon="brush">       </b-icon> <span>Brush</span>    </button>   </div>
+                        <hr>
+                        <div class="column is-6 is-offset-3"><button class="button is-success" id="btn-save" @click="exportAnnotation"> <b-icon pack="fas" icon="save">            </b-icon> <span>Export</span>    </button>   </div>
                         <!-- <div class="column is-6"><button class="button is-info" id="btn-eraser">     <b-icon pack="fas" icon="eraser">           </b-icon> <span>Eraser</span>   </button>   </div> -->
                     </div>
                 </div>
@@ -24,14 +26,15 @@
                 <div class="column">
                     <canvas id="main-canvas" ref="main-canvas"/>
                 </div>
+                <div class="column">
+                    <canvas class="hidden" id="export-canvas" ref="export-canvas"></canvas>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-// import annotator from '@/services/annotator'
-// import iris_sample_path from '@/assets/iris-sample-single.png'
 import { fabric } from 'fabric'
 import { mapState } from 'vuex'
 
@@ -44,7 +47,6 @@ export default {
             paths_group: new fabric.Group(),
             context: null,
             image: null,
-            annotation: "Just an annotation",
         }
     },
     computed: {
@@ -64,22 +66,55 @@ export default {
     methods: {
 
         prevImage: function() {
-            this.postAnnotation()
+            this.postAnnotations()
             this.$store.dispatch('images/decSeqCounter')
         },
 
         nextImage: function() {
-            this.postAnnotation()
+            this.postAnnotations()
             this.$store.dispatch('images/incSeqCounter')
         },
 
-        postAnnotation: function() {
-            const payload = {
-                imgID: this.canvas_image.imgID,
-                annotation: this.annotation,
-            }
-            this.$store.dispatch('images/postAnnotation', payload)
-            console.log('Dispatched annotation payload');
+        postAnnotations: function() {
+            this.$store.dispatch('images/postAnnotations')
+        },
+
+        exportAnnotation: function() {
+            console.log('Exporting annotation');
+
+            // other useful methods:
+            // console.log(this.canvas.main_canvas.toSVG())
+            // console.log(this.canvas.main_canvas.toObject())
+
+            // clone objects from main-canvas, as we cannot directly
+            // export tainted canvases due to security constraints
+            this.canvas.main_canvas.getObjects()
+                .map(o => this.canvas.export_canvas.add(o))
+            this.canvas.export_canvas.renderAll()
+
+            // convert canvas to image
+            this.$refs['export-canvas'].toBlob( blob => {
+                const new_img = document.createElement('img'),
+                    url = URL.createObjectURL(blob);
+                new_img.onload = function() {
+                    URL.revokeObjectURL(url);
+                };
+                new_img.src = url;
+                document.body.appendChild(new_img);
+
+                // convert blob to base64 for upload
+                const reader = new FileReader();
+                reader.readAsDataURL(blob);
+                reader.onloadend = () => {
+                    const base64data = reader.result;
+                    const payload = {
+                        imgID: this.canvas_image.imgID,
+                        annotation: base64data,
+                    }
+                    this.$store.dispatch('images/setAnnotation', payload)
+                }
+            })
+
         },
 
         update_canvas_image: function() {
@@ -101,7 +136,7 @@ export default {
                 return
             }
 
-            // get canvas
+            // set canvas references
             const canvas = this.$refs['main-canvas']
             this.canvas = this.canvas ? this.canvas : {}
             this.canvas.main_canvas = this.canvas.main_canvas ?
@@ -110,6 +145,9 @@ export default {
             this.canvas.vis_canvas = this.canvas.vis_canvas ?
                 this.canvas.vis_canvas :
                 new fabric.Canvas(this.$refs['vis-canvas'])
+            this.canvas.export_canvas = this.canvas.export_canvas ?
+                this.canvas.export_canvas :
+                new fabric.Canvas(this.$refs['export-canvas'])
             // this.context = canvas.getContext('2d')
 
             // set up iris image
@@ -119,6 +157,7 @@ export default {
             this.canvas_image_source = process.env.VUE_APP_DATASET_ROOT + this.canvas_image.imgStaticPath
             this.image.src = "";
             this.image.src = this.canvas_image_source
+            this.image.crossOrigin = "Anonymous";
             this.image.onerror = () => {
                 console.error("Image not found:", this.image.src);
             }
@@ -137,6 +176,9 @@ export default {
                 this.canvas.main_canvas.setBackgroundImage(this.canvas_image_source, this.canvas.main_canvas.renderAll.bind(this.canvas.main_canvas))
                 this.canvas.main_canvas.setDimensions({ width: this.image.naturalWidth, height: this.image.naturalHeight })
                 this.canvas.main_canvas.renderAll();
+
+                // prepare export canvas
+                this.canvas.export_canvas.setDimensions({width: this.image.naturalWidth, height: this.image.naturalHeight })
 
                 // set brush properties
                 this.canvas.main_canvas.freeDrawingBrush.width = 20
@@ -221,5 +263,9 @@ button {
 }
 .cnv {
     padding-top: 0;
+}
+.hidden {
+    border: 1px solid red;
+    /* display: none; */
 }
 </style>

@@ -92,40 +92,37 @@ class AnnotationViewSet(viewsets.ViewSet):
     def create(self, request):
         """Create or update the annotation for an image."""
 
-        print(request.data.keys())
-        print(request.user.pk)
-        # raise Exception("Whatever")
+        print("User {} posting new annotations.".format(request.user.pk))
 
-        img_instance = Image.objects.get(imgID=request.data['imgID'])
-        # user_instance = User.object.get(pk=request.user.pk)
+        failures = list()
+        print(len(request.data))
+        for ann in request.data:
 
-        ann = {
-            'annotator': request.user,
-            'image': img_instance,
-        }
-        print(ann)
-        print("---------")
-        annotation, _ = Annotation.objects.get_or_create({
-            'annotator': request.user,
-            'image': img_instance,
-        })
-        print(dir(annotation))
-        annotation.annotation = request.data['annotation'] if 'annotation' in request.data else ""
-        # serializer = AnnotationSerializer(annotation)
-        try:
-            annotation.full_clean()
-            annotation.save()
-            # headers = self.get_success_headers(annotation.data)
-            print("New annotation stored.")
+            print(ann.keys())
+
+            img_instance = Image.objects.get(imgID=ann['imgID'])
+            annotation, _ = Annotation.objects.get_or_create({
+                'annotator': request.user,
+                'image': img_instance,
+            })
+            print(ann['annotation'])
+            annotation.annotation = ann['annotation'] if 'annotation' in ann else ""
+            # serializer = AnnotationSerializer(annotation)
+            try:
+                annotation.save()
+                print("New annotation stored.")
+            except Exception as err:
+                failures.append(img_instance.imgID)
+                print(err)
+
+        if len(failures) == 0:
             return Response(
-                {"Success": "annotation saved"},
+                {"Success": "all annotations saved"},
                 status=status.HTTP_201_CREATED,
-                # headers=headers
             )
-        except Exception as err:
-            print(err)
+        else:
             return Response(
-                {"Fail": "annotation could NOT be saved"},
+                {"Fail": "some annotations could NOT be saved."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 

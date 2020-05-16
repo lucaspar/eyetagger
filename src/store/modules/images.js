@@ -12,7 +12,12 @@ const getters = {
         return state.images
     },
     annotation: (state, imgID) => {
-        return state.annotations[imgID]
+        try {
+            return state.annotations[imgID].annotation
+        }
+        catch(_) {
+            return undefined
+        }
     },
     sequential_counter: state => {
         return state.sequential_counter
@@ -29,12 +34,23 @@ const actions = {
                 commit('setImages', images)
             })
     },
-    postAnnotation({ commit }, payload) {
-        console.log('Dispatched annotation payload');
-        imageService.postAnnotation(payload)
-            .then(response => {
-                commit('postAnnotation', response)
-            })
+    postAnnotations({ commit, state }) {
+
+        console.log('Posting annotation to server');
+        const annotations = Object.values(state.annotations).filter(v => v.is_dirty)
+        console.log(annotations.length, " dirty annotations")
+
+        if (annotations.length > 0) {
+            imageService.postAnnotations(annotations)
+                .then(response => {
+                    commit('postAnnotations', response)
+                })
+        }
+
+    },
+    setAnnotation({ commit }, payload) {
+        console.log("Setting new annotation locally")
+        commit('setAnnotation', payload)
     },
     incSeqCounter({ commit }) {
         commit('incSeqCounter')
@@ -54,8 +70,18 @@ const mutations = {
     setImages(state, images) {
         state.images = images
     },
-    postAnnotation(state, response) {
+    postAnnotations(_, response) {
         console.log(response)
+    },
+    setAnnotation(state, payload) {
+        // console.log(payload.imgID, payload.annotation)
+        const id = payload.imgID
+        if (state.annotations[id] === undefined) {
+            state.annotations[id] = {}
+        }
+        state.annotations[id].imgID = id        // makes things simpler later
+        state.annotations[id].is_dirty = true   // marks to be posted
+        state.annotations[id].annotation = payload.annotation
     },
     incSeqCounter(state) {
         state.sequential_counter++
