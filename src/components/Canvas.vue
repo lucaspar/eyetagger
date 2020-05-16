@@ -44,7 +44,7 @@ export default {
             paths_group: new fabric.Group(),
             context: null,
             image: null,
-            annotation: [ "Just an annotation" ],
+            annotation: "Just an annotation",
         }
     },
     computed: {

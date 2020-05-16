@@ -77,7 +77,7 @@ class AnnotationViewSet(viewsets.ViewSet):
         """Returns the list of annotations."""
 
         print(" > Listing")
-        serializer = AnnotationSerializer(self.queryset, many=True)
+        serializer = AnnotationSerializer(self.queryset, context={'request': request}, many=True)
         return Response(serializer.data)
 
     def retrieve(self, request, pk):
@@ -105,23 +105,25 @@ class AnnotationViewSet(viewsets.ViewSet):
         }
         print(ann)
         print("---------")
-        annotation = Annotation.objects.get_or_create({
+        annotation, _ = Annotation.objects.get_or_create({
             'annotator': request.user,
             'image': img_instance,
         })
-        print(annotation)
-        annotation.annotation = request.data['annotation']
-        # serializer = AnnotationSerializer(**ann)
+        print(dir(annotation))
+        annotation.annotation = request.data['annotation'] if 'annotation' in request.data else ""
+        # serializer = AnnotationSerializer(annotation)
         try:
-            annotation.is_valid(raise_exception=True)
+            annotation.full_clean()
             annotation.save()
-            headers = self.get_success_headers(annotation.data)
+            # headers = self.get_success_headers(annotation.data)
+            print("New annotation stored.")
             return Response(
                 {"Success": "annotation saved"},
                 status=status.HTTP_201_CREATED,
-                headers=headers
+                # headers=headers
             )
-        except:
+        except Exception as err:
+            print(err)
             return Response(
                 {"Fail": "annotation could NOT be saved"},
                 status=status.HTTP_400_BAD_REQUEST

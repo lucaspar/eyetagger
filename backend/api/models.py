@@ -37,9 +37,9 @@ class ImageSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('imgID', 'extension', 'imgStaticPath', 'pk')
 
 
-class AnnotationSerializer(serializers.HyperlinkedModelSerializer):
+class AnnotationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Message
+        model = Annotation
         fields = ('annotator', 'image', 'annotation', 'pk')
 
 
