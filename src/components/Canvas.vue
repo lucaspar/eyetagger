@@ -4,7 +4,7 @@
             <small>ID: {{ imgID_short }}</small>
         </div>
         <div class="center column is-full">
-            <h4 class="title is-4 has-text-centered">Iris {{ canvas_image.pk }}</h4>
+            <h4 class="title is-4 has-text-centered">Iris #{{ this.sequential_counter + 1 }}</h4>
         </div>
         <div class="column is-full">
             <div class="columns is-centered">
@@ -44,7 +44,7 @@ export default {
             paths_group: new fabric.Group(),
             context: null,
             image: null,
-            canvas_image: {},
+            annotation: [ "Just an annotation" ],
         }
     },
     computed: {
@@ -52,6 +52,7 @@ export default {
             'images',
             'annotations',
             'sequential_counter',
+            'canvas_image',
         ]),
         imgID_short: function() {
             if (this.canvas_image && this.canvas_image.imgID) {
@@ -63,31 +64,42 @@ export default {
     methods: {
 
         prevImage: function() {
+            this.postAnnotation()
             this.$store.dispatch('images/decSeqCounter')
         },
 
         nextImage: function() {
+            this.postAnnotation()
             this.$store.dispatch('images/incSeqCounter')
+        },
+
+        postAnnotation: function() {
+            const payload = {
+                imgID: this.canvas_image.imgID,
+                annotation: this.annotation,
+            }
+            this.$store.dispatch('images/postAnnotation', payload)
+            console.log('Dispatched annotation payload');
         },
 
         update_canvas_image: function() {
 
             // need both counter and list of images to update canvas image
-            if (this.sequential_counter == undefined || this.images == undefined) {
+            if (this.sequential_counter == undefined ||
+                this.images == undefined ||
+                this.images.length <= this.sequential_counter + 1) {
                 return
             }
-
-            let canvas_image = this.images.filter(el => el.pk >= this.sequential_counter)
-            canvas_image = canvas_image.length > 0 ? canvas_image[0] : canvas_image
-            if (canvas_image && canvas_image.pk != this.sequential_counter){
-                console.log("NEW_PK:", canvas_image)
-                this.$store.dispatch('images/setSeqCounter', canvas_image.pk)
-            }
-            this.canvas_image = canvas_image
-            console.log("Updated canvas image:", canvas_image)
+            let canvas_image = this.images[this.sequential_counter]
+            this.$store.dispatch('images/setCanvasImage', canvas_image)
         },
 
         update_canvas_display: function() {
+
+            // if there's no image to show, there's nothing else to do
+            if (this.canvas_image == undefined || !this.canvas_image.imgID) {
+                return
+            }
 
             // get canvas
             const canvas = this.$refs['main-canvas']
@@ -100,13 +112,6 @@ export default {
                 new fabric.Canvas(this.$refs['vis-canvas'])
             // this.context = canvas.getContext('2d')
 
-            // if there's no image to show, there's nothing else to do
-            console.log(this.canvas_image);
-
-            if (this.canvas_image == undefined || !this.canvas_image.imgID) {
-                return
-            }
-
             // set up iris image
             if (!this.image) {
                 this.image = new window.Image()
@@ -114,9 +119,8 @@ export default {
             this.canvas_image_source = process.env.VUE_APP_DATASET_ROOT + this.canvas_image.imgStaticPath
             this.image.src = "";
             this.image.src = this.canvas_image_source
-            console.log("SOURCE 1:", this.image.src);
-            this.image.onerror = a => {
-                console.log("Err:", a, this.image.src);
+            this.image.onerror = () => {
+                console.error("Image not found:", this.image.src);
             }
             this.image.onload = () => {
 
@@ -153,7 +157,7 @@ export default {
                     originY: 'center',
                 })
                 const items = this.canvas.main_canvas.getObjects()
-                console.log("Objects count:", items.length);
+                console.log("Objects in this annotation:", items.length);
 
                 // cloning an object
                 // const new_item = fabric.util.object.clone(items[items.length-1])
@@ -164,23 +168,30 @@ export default {
 
             })
 
-            console.log("Updated canvas display")
         }
 
     },  // end of 'methods'
     watch: {
+
+        // update canvas image when image array changes
         images: {
             handler: 'update_canvas_image',
         },
+
+        // update canvas image when sequential counter changes
         sequential_counter: {
             handler: 'update_canvas_image',
         },
+
+        // update displayed image when canvas image changes
         canvas_image: {
             handler: 'update_canvas_display',
         }
+
     },  // end of 'watch'
     mounted() {
-        this.$refs['cnv'].focus();
+        this.$refs['cnv'].focus()
+        this.update_canvas_image()
         this.update_canvas_display()
     },
 }

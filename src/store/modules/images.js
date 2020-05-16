@@ -4,6 +4,7 @@ const state = {
     images: [],
     annotations: {},
     sequential_counter: 0,
+    canvas_image: undefined,
 }
 
 const getters = {
@@ -15,7 +16,10 @@ const getters = {
     },
     sequential_counter: state => {
         return state.sequential_counter
-    }
+    },
+    canvas_image: state => {
+        return state.canvas_image
+    },
 }
 
 const actions = {
@@ -25,10 +29,11 @@ const actions = {
                 commit('setImages', images)
             })
     },
-    postAnnotation({ commit }) {
-        imageService.postAnnotation()
-            .then((annotation, imgID) => {
-                commit('setAnnotation', annotation, imgID)
+    postAnnotation({ commit }, payload) {
+        console.log('Dispatched annotation payload');
+        imageService.postAnnotation(payload)
+            .then(response => {
+                commit('postAnnotation', response)
             })
     },
     incSeqCounter({ commit }) {
@@ -39,15 +44,18 @@ const actions = {
     },
     setSeqCounter({ commit }, new_val) {
         commit('setSeqCounter', new_val)
-    }
+    },
+    setCanvasImage({ commit }, new_val) {
+        commit('setCanvasImage', new_val)
+    },
 }
 
 const mutations = {
     setImages(state, images) {
         state.images = images
     },
-    setAnnotation(state, annotation, imgID) {
-        state.annotations[imgID] = annotation
+    postAnnotation(state, response) {
+        console.log(response)
     },
     incSeqCounter(state) {
         state.sequential_counter++
@@ -57,6 +65,10 @@ const mutations = {
     },
     setSeqCounter(state, new_val) {
         state.sequential_counter = new_val
+    },
+    setCanvasImage(state, new_val) {
+        console.log("Updated canvas image:", new_val.imgStaticPath)
+        state.canvas_image = new_val
     },
 }
 
