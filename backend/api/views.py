@@ -69,6 +69,7 @@ class UserDetail(generics.RetrieveAPIView):
 
 
 class AnnotationViewSet(viewsets.ViewSet):
+    # TODO: make a proper front-end login and uncomment the line below
     # permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAnnotatorOwnerOrStaff]
     queryset = Annotation.objects.all()
     http_method_names = ['get', 'post', 'head']
@@ -95,6 +96,7 @@ class AnnotationViewSet(viewsets.ViewSet):
         print("User {} posting new annotations.".format(request.user.pk))
 
         failures = list()
+        successes = list()
         print(len(request.data))
         for ann in request.data:
 
@@ -107,22 +109,32 @@ class AnnotationViewSet(viewsets.ViewSet):
             })
             print(ann['annotation'])
             annotation.annotation = ann['annotation'] if 'annotation' in ann else ""
-            # serializer = AnnotationSerializer(annotation)
             try:
                 annotation.save()
                 print("New annotation stored.")
+                successes.append(img_instance.imgID)
             except Exception as err:
                 failures.append(img_instance.imgID)
                 print(err)
 
         if len(failures) == 0:
             return Response(
-                {"Success": "all annotations saved"},
+                {
+                    "message": "all annotations saved",
+                    "success": True,
+                    "successes": successes,
+                    "failures": failures,
+                },
                 status=status.HTTP_201_CREATED,
             )
         else:
             return Response(
-                {"Fail": "some annotations could NOT be saved."},
+                {
+                    "message": "some annotations could NOT be saved.",
+                    "success": False,
+                    "successes": successes,
+                    "failures": failures,
+                },
                 status=status.HTTP_400_BAD_REQUEST
             )
 
