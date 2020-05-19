@@ -1,5 +1,5 @@
 <template>
-    <div ref='cnv' class="cnv section columns is-multiline" @keyup.left="prevImage" @keyup.81="prevImage" @keyup.right="nextImage" @keyup.69="nextImage">
+    <div ref='cnv' class="cnv section columns is-multiline" @keyup.left="prev_image" @keyup.81="prev_image" @keyup.right="next_image" @keyup.69="next_image">
         <div v-if="imgID_short" class="image_id">
             <small>ID: {{ imgID_short }}</small>
         </div>
@@ -10,13 +10,13 @@
             <div class="columns is-multiline is-centered">
                 <div class="column is-2" id="control-panel">
                     <div class="columns is-multiline">
-                        <div class="column is-6"><button class="button is-info" id="btn-previous"   @click="prevImage"> <b-icon pack="fas" icon="chevron-left">     </b-icon> <span>Previous (Q)</span> </button>   </div>
-                        <div class="column is-6"><button class="button is-info" id="btn-next"       @click="nextImage"> <b-icon pack="fas" icon="chevron-right">    </b-icon> <span>Next (E)</span>     </button>   </div>
+                        <div class="column is-6"><button class="button is-info" id="btn-previous"   @click="prev_image"> <b-icon pack="fas" icon="chevron-left">     </b-icon> <span>Previous (Q)</span> </button>   </div>
+                        <div class="column is-6"><button class="button is-info" id="btn-next"       @click="next_image"> <b-icon pack="fas" icon="chevron-right">    </b-icon> <span>Next (E)</span>     </button>   </div>
                         <div class="column is-6"><button class="button is-info" id="btn-undo">       <b-icon pack="fas" icon="undo">        </b-icon> <span>Undo (Z)</span>     </button>   </div>
                         <div class="column is-6"><button class="button is-info" id="btn-redo">       <b-icon pack="fas" icon="redo">        </b-icon> <span>Redo (X)</span>     </button>   </div>
                         <div class="column is-6 is-offset-3"><button class="button is-info" id="btn-brush"> <b-icon pack="fas" icon="brush">       </b-icon> <span>Brush</span>    </button>   </div>
                         <hr>
-                        <div class="column is-6 is-offset-3"><button class="button is-success" id="btn-save" @click="exportAnnotation"> <b-icon pack="fas" icon="save">            </b-icon> <span>Export</span>    </button>   </div>
+                        <div class="column is-6 is-offset-3"><button class="button is-success" id="btn-save" @click="export_annotation"> <b-icon pack="fas" icon="save">            </b-icon> <span>Export</span>    </button>   </div>
                         <!-- <div class="column is-6"><button class="button is-info" id="btn-eraser">     <b-icon pack="fas" icon="eraser">           </b-icon> <span>Eraser</span>   </button>   </div> -->
                     </div>
                 </div>
@@ -61,25 +61,44 @@ export default {
                 return this.canvas_image.imgID.substr(this.canvas_image.imgID.length - 10)
             }
             return undefined
-        }
+        },
+        comp_annotations() {
+            console.log(this.images)
+            if (this.images && this.images.annotations) {
+                console.log(this.images.annotations.length)
+                return this.images.annotations
+            }
+            return {}
+        },
     },
     methods: {
 
-        prevImage: function() {
-            this.postAnnotations()
+        prev_image: function() {
+            this.export_annotation()
             this.$store.dispatch('images/decSeqCounter')
         },
 
-        nextImage: function() {
-            this.postAnnotations()
+        next_image: function() {
+            if (this.annotations) {
+                console.log(typeof this.annotations)
+                console.log("AAA", Object.values(this.annotations).length);
+            }
+            this.export_annotation()
             this.$store.dispatch('images/incSeqCounter')
         },
 
-        postAnnotations: function() {
+        post_annotations: function() {
+            console.log('POSTING ANNOTATIONS');
             this.$store.dispatch('images/postAnnotations')
         },
 
-        exportAnnotation: function() {
+        canvas_clear: function() {
+            this.canvas.main_canvas.getObjects().map( o => {
+                this.canvas.main_canvas.remove(o)
+            })
+        },
+
+        export_annotation: function() {
             console.log('Exporting annotation');
 
             // other useful methods:
@@ -94,6 +113,13 @@ export default {
 
             // convert canvas to image
             this.$refs['export-canvas'].toBlob( blob => {
+
+                // now objects can be removed from export canvas
+                this.canvas.export_canvas.getObjects().map( o => {
+                    this.canvas.export_canvas.remove(o)
+                })
+
+                // display generated image (optional)
                 const new_img = document.createElement('img'),
                     url = URL.createObjectURL(blob);
                 new_img.onload = function() {
@@ -102,7 +128,7 @@ export default {
                 new_img.src = url;
                 document.body.appendChild(new_img);
 
-                // convert blob to base64 for upload
+                // convert blob to base64 for later upload
                 const reader = new FileReader();
                 reader.readAsDataURL(blob);
                 reader.onloadend = () => {
@@ -164,6 +190,9 @@ export default {
             this.image.onload = () => {
 
                 console.log("LOADED:", this.canvas_image_source);
+
+                // remove old objects from main_canvas
+                this.canvas_clear()
 
                 // prepare visualization canvas
                 this.canvas.vis_canvas.isDrawingMode = false
@@ -228,11 +257,21 @@ export default {
         // update displayed image when canvas image changes
         canvas_image: {
             handler: 'update_canvas_display',
-        }
+        },
+
+        // post annotations to server when they change
+        annotations: {
+            handler: 'post_annotations',
+            deep: true,
+        },
 
     },  // end of 'watch'
     mounted() {
         this.$refs['cnv'].focus()
+        if (this.annotations) {
+            console.log(typeof this.annotations)
+            console.log("AAA", Object.values(this.annotations).length);
+        }
         this.update_canvas_image()
         this.update_canvas_display()
     },
