@@ -192,7 +192,13 @@ export default {
                 console.log("LOADED:", this.canvas_image_source);
 
                 // remove old objects from main_canvas
+<<<<<<< HEAD
                 this.canvas_clear()
+=======
+                this.canvas.main_canvas.getObjects().map( o => {
+                    this.canvas.main_canvas.remove(o)
+                })
+>>>>>>> f4c950cc1eaac7b1828cc9c3e1c3480ec0bedc7f
 
                 // prepare visualization canvas
                 this.canvas.vis_canvas.isDrawingMode = false
