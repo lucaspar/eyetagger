@@ -35,7 +35,8 @@ class ImageViewSet(viewsets.ViewSet):
     API endpoint that allows images to be viewed and annotations stored.
     """
 
-    queryset = Image.objects.all()
+    MAX_ITEMS_TO_RETURN = 200
+    queryset = Image.objects.all()[:MAX_ITEMS_TO_RETURN]
 
     def list(self, request):
         print(" > Listing")
@@ -69,6 +70,7 @@ class UserDetail(generics.RetrieveAPIView):
 
 
 class AnnotationViewSet(viewsets.ViewSet):
+
     # TODO: make a proper front-end login and uncomment the line below
     # permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAnnotatorOwnerOrStaff]
     queryset = Annotation.objects.all()

@@ -13,6 +13,7 @@ django-environ = "*"
 yapf = "*"
 applicationinsights = "*"
 whitenoise = "==5"
+pandas = "*"
 
 [dev-packages]
 
