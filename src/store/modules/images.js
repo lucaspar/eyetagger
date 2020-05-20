@@ -11,9 +11,9 @@ const getters = {
     images: state => {
         return state.images
     },
-    annotation: (state, imgID) => {
+    annotation: (state, img_id) => {
         try {
-            return state.annotations[imgID].annotation
+            return state.annotations[img_id].annotation
         }
         catch(_) {
             return undefined
@@ -78,12 +78,12 @@ const mutations = {
         })
     },
     setAnnotation(state, payload) {
-        // console.log(payload.imgID, payload.annotation)
-        const id = payload.imgID
+        // console.log(payload.img_id, payload.annotation)
+        const id = payload.img_id
         if (state.annotations[id] === undefined) {
             state.annotations[id] = {}
         }
-        state.annotations[id].imgID = id        // makes things simpler later
+        state.annotations[id].img_id = id        // makes things simpler later
         state.annotations[id].is_dirty = true   // marks to be posted
         state.annotations[id].annotation = payload.annotation
     },
@@ -97,7 +97,7 @@ const mutations = {
         state.sequential_counter = new_val
     },
     setCanvasImage(state, new_val) {
-        console.log("Updated canvas image: " + new_val.imgStaticPath)
+        console.log("Updated canvas image: " + new_val.img_path)
         state.canvas_image = new_val
     },
 }

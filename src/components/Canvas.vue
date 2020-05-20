@@ -1,7 +1,7 @@
 <template>
     <div ref='cnv' class="cnv section columns is-multiline" @keyup.left="prev_image" @keyup.81="prev_image" @keyup.right="next_image" @keyup.69="next_image">
-        <div v-if="imgID_short" class="image_id">
-            <small>ID: {{ imgID_short }}</small>
+        <div v-if="img_id_short" class="image_id">
+            <small>ID: {{ img_id_short }}</small>
         </div>
         <div class="center column is-full">
             <h4 class="title is-4 has-text-centered">Iris #{{ this.sequential_counter + 1 }}</h4>
@@ -26,7 +26,7 @@
                 <div class="column">
                     <canvas id="main-canvas" ref="main-canvas"/>
                 </div>
-                <div class="column">
+                <div class="column hidden">
                     <canvas class="hidden" id="export-canvas" ref="export-canvas"></canvas>
                 </div>
             </div>
@@ -56,9 +56,9 @@ export default {
             'sequential_counter',
             'canvas_image',
         ]),
-        imgID_short: function() {
-            if (this.canvas_image && this.canvas_image.imgID) {
-                return this.canvas_image.imgID.substr(this.canvas_image.imgID.length - 10)
+        img_id_short: function() {
+            if (this.canvas_image && this.canvas_image.img_id) {
+                return this.canvas_image.img_id.substr(this.canvas_image.img_id.length - 10)
             }
             return undefined
         },
@@ -120,13 +120,13 @@ export default {
                 })
 
                 // display generated image (optional)
-                const new_img = document.createElement('img'),
-                    url = URL.createObjectURL(blob);
-                new_img.onload = function() {
-                    URL.revokeObjectURL(url);
-                };
-                new_img.src = url;
-                document.body.appendChild(new_img);
+                // const new_img = document.createElement('img'),
+                //     url = URL.createObjectURL(blob);
+                // new_img.onload = function() {
+                //     URL.revokeObjectURL(url);
+                // };
+                // new_img.src = url;
+                // document.body.appendChild(new_img);
 
                 // convert blob to base64 for later upload
                 const reader = new FileReader();
@@ -134,7 +134,7 @@ export default {
                 reader.onloadend = () => {
                     const base64data = reader.result;
                     const payload = {
-                        imgID: this.canvas_image.imgID,
+                        img_id: this.canvas_image.img_id,
                         annotation: base64data,
                     }
                     this.$store.dispatch('images/setAnnotation', payload)
@@ -158,7 +158,7 @@ export default {
         update_canvas_display: function() {
 
             // if there's no image to show, there's nothing else to do
-            if (this.canvas_image == undefined || !this.canvas_image.imgID) {
+            if (this.canvas_image == undefined || !this.canvas_image.img_id) {
                 return
             }
 
@@ -180,7 +180,7 @@ export default {
             if (!this.image) {
                 this.image = new window.Image()
             }
-            this.canvas_image_source = process.env.VUE_APP_DATASET_ROOT + this.canvas_image.imgStaticPath
+            this.canvas_image_source = process.env.VUE_APP_DATASET_ROOT + '/' + this.canvas_image.img_path
             this.image.src = "";
             this.image.src = this.canvas_image_source
             this.image.crossOrigin = "Anonymous";
@@ -191,14 +191,8 @@ export default {
 
                 console.log("LOADED:", this.canvas_image_source);
 
-                // remove old objects from main_canvas
-<<<<<<< HEAD
+                // remove old objects
                 this.canvas_clear()
-=======
-                this.canvas.main_canvas.getObjects().map( o => {
-                    this.canvas.main_canvas.remove(o)
-                })
->>>>>>> f4c950cc1eaac7b1828cc9c3e1c3480ec0bedc7f
 
                 // prepare visualization canvas
                 this.canvas.vis_canvas.isDrawingMode = false
@@ -311,6 +305,6 @@ button {
 }
 .hidden {
     border: 1px solid red;
-    /* display: none; */
+    display: none;
 }
 </style>
