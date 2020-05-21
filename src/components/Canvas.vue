@@ -88,7 +88,7 @@ export default {
         },
 
         post_annotations: function() {
-            console.log('POSTING ANNOTATIONS');
+            console.log('POSTING ANNOTATIONS'); // WHY THIS WATCHER IS NOT EXECUTED ???
             this.$store.dispatch('images/postAnnotations')
         },
 

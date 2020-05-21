@@ -35,12 +35,17 @@ class ImageViewSet(viewsets.ViewSet):
     API endpoint that allows images to be viewed and annotations stored.
     """
 
-    MAX_ITEMS_TO_RETURN = 200
-    queryset = Image.objects.all()[:MAX_ITEMS_TO_RETURN]
+    queryset = Image.objects.all()
 
     def list(self, request):
         print(" > Listing")
-        serializer = ImageSerializer(self.queryset, many=True)
+        MAX_ITEMS_TO_RETURN = 200
+
+        filtered_set = self.queryset.filter(lens_type="F")  # return only "fake" lenses
+        filtered_set = filtered_set.order_by('img_id')
+        filtered_set = filtered_set[:MAX_ITEMS_TO_RETURN]
+
+        serializer = ImageSerializer(filtered_set, many=True)
         return Response(serializer.data)
 
     def retrieve(self, request, pk):
