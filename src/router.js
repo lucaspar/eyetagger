@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/components/Home'
 import Rest from '@/components/Rest'
+import ThankYou from '@/components/ThankYou'
 import Annotation from '@/components/Annotation'
 import Visualization from '@/components/Visualization'
 
@@ -18,6 +19,11 @@ export default new Router({
             path: '/rest',
             name: 'rest',
             component: Rest,
+        },
+        {
+            path: '/thankyou',
+            name: 'thankyou',
+            component: ThankYou,
         },
         {
             path: '/annotation',

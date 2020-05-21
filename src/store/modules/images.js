@@ -97,6 +97,10 @@ const mutations = {
         state.sequential_counter = new_val
     },
     setCanvasImage(state, new_val) {
+        if (new_val == undefined) {
+            console.log("WARN :: Trying to set canvas_image with no value.")
+            return
+        }
         console.log("Updated canvas image: " + new_val.img_path)
         state.canvas_image = new_val
     },

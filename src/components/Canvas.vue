@@ -8,23 +8,22 @@
         </div>
         <div class="column is-full">
             <div class="columns is-multiline is-centered">
-                <div class="column is-2" id="control-panel">
-                    <div class="columns is-multiline">
-                        <div class="column is-6"><button class="button is-info" id="btn-previous"   @click="prev_image"> <b-icon pack="fas" icon="chevron-left">     </b-icon> <span>Previous (Q)</span> </button>   </div>
-                        <div class="column is-6"><button class="button is-info" id="btn-next"       @click="next_image"> <b-icon pack="fas" icon="chevron-right">    </b-icon> <span>Next (E)</span>     </button>   </div>
-                        <div class="column is-6"><button class="button is-info" id="btn-undo">       <b-icon pack="fas" icon="undo">        </b-icon> <span>Undo (Z)</span>     </button>   </div>
-                        <div class="column is-6"><button class="button is-info" id="btn-redo">       <b-icon pack="fas" icon="redo">        </b-icon> <span>Redo (X)</span>     </button>   </div>
-                        <div class="column is-6 is-offset-3"><button class="button is-info" id="btn-brush"> <b-icon pack="fas" icon="brush">       </b-icon> <span>Brush</span>    </button>   </div>
-                        <hr>
-                        <div class="column is-6 is-offset-3"><button class="button is-success" id="btn-save" @click="export_annotation"> <b-icon pack="fas" icon="save">            </b-icon> <span>Export</span>    </button>   </div>
-                        <!-- <div class="column is-6"><button class="button is-info" id="btn-eraser">     <b-icon pack="fas" icon="eraser">           </b-icon> <span>Eraser</span>   </button>   </div> -->
-                    </div>
-                </div>
                 <div class="column">
                     <canvas id="vis-canvas" ref="vis-canvas"/>
                 </div>
                 <div class="column">
                     <canvas id="main-canvas" ref="main-canvas"/>
+                </div>
+                <div class="column is-2" id="control-panel">
+                    <div class="columns is-multiline">
+                        <div class="column is-6"><button class="button is-info" id="btn-previous"   @click="prev_image"> <b-icon pack="fas" icon="chevron-left">     </b-icon> <span>Previous</span> </button>   </div>
+                        <div class="column is-6"><button class="button is-info" id="btn-next"       @click="next_image"> <b-icon pack="fas" icon="chevron-right">    </b-icon> <span>Next</span>     </button>   </div>
+                        <!-- <div class="column is-6"><button class="button is-info" id="btn-undo">       <b-icon pack="fas" icon="undo">        </b-icon> <span>Undo (Z)</span>     </button>   </div>
+                        <div class="column is-6"><button class="button is-info" id="btn-redo">       <b-icon pack="fas" icon="redo">        </b-icon> <span>Redo (X)</span>     </button>   </div> -->
+                        <!-- <div class="column is-6 is-offset-3"><button class="button is-info" id="btn-brush"> <b-icon pack="fas" icon="brush">       </b-icon> <span>Brush</span>    </button>   </div> -->
+                        <div class="column is-6 is-offset-3"><hr><button class="button is-danger" id="btn-eraser"   @click="canvas_clear"> <b-icon pack="fas" icon="eraser">       </b-icon> <span>Clear canvas</span>    </button>   </div>
+                        <!-- <div class="column is-6 is-offset-3"><hr><button class="button is-success" id="btn-save" @click="export_annotation"> <b-icon pack="fas" icon="save">            </b-icon> <span>Export</span>    </button>   </div> -->
+                    </div>
                 </div>
                 <div class="column hidden">
                     <canvas class="hidden" id="export-canvas" ref="export-canvas"></canvas>
@@ -56,7 +55,7 @@ export default {
             'sequential_counter',
             'canvas_image',
         ]),
-        img_id_short: function() {
+        img_id_short() {
             if (this.canvas_image && this.canvas_image.img_id) {
                 return this.canvas_image.img_id.substr(this.canvas_image.img_id.length - 10)
             }
@@ -74,21 +73,27 @@ export default {
     methods: {
 
         prev_image: function() {
+            if (this.sequential_counter == undefined || this.sequential_counter <= 0) {
+                return
+            }
             this.export_annotation()
             this.$store.dispatch('images/decSeqCounter')
         },
 
         next_image: function() {
-            if (this.annotations) {
-                console.log(typeof this.annotations)
-                console.log("AAA", Object.values(this.annotations).length);
+            if (this.sequential_counter == undefined) {
+                return
             }
             this.export_annotation()
+            if (this.sequential_counter >= this.images.length - 1) {
+                this.$router.push({ name: 'thankyou' })
+                return
+            }
             this.$store.dispatch('images/incSeqCounter')
         },
 
-        post_annotations: function() {
-            console.log('POSTING ANNOTATIONS'); // WHY THIS WATCHER IS NOT EXECUTED ???
+        post_annotations: function() {          // WHY THIS WATCHER IS NOT EXECUTED ???
+            console.log('POSTING ANNOTATIONS')
             this.$store.dispatch('images/postAnnotations')
         },
 
@@ -147,8 +152,8 @@ export default {
 
             // need both counter and list of images to update canvas image
             if (this.sequential_counter == undefined ||
-                this.images == undefined ||
-                this.images.length <= this.sequential_counter + 1) {
+                this.images == undefined || this.images.length === 0 ||
+                this.sequential_counter >= this.images.length) {
                 return
             }
             let canvas_image = this.images[this.sequential_counter]
