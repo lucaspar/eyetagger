@@ -62,12 +62,13 @@ export default {
             return undefined
         },
         comp_annotations() {
-            console.log(this.images)
-            if (this.images && this.images.annotations) {
-                console.log(this.images.annotations.length)
-                return this.images.annotations
-            }
-            return {}
+            return this.annotations
+            // console.log(this.images)
+            // if (this.images && this.images.annotations) {
+            //     console.log(this.images.annotations.length)
+            //     return this.images.annotations
+            // }
+            // return {}
         },
     },
     methods: {
@@ -105,6 +106,7 @@ export default {
 
         export_annotation: function() {
             console.log('Exporting annotation');
+            console.log("ANNS WEWE", Object.keys(this.annotations).length);
 
             // other useful methods:
             // console.log(this.canvas.main_canvas.toSVG())
@@ -265,18 +267,15 @@ export default {
         },
 
         // post annotations to server when they change
-        annotations: {
+        comp_annotations: {
             handler: 'post_annotations',
+            immediate: true,
             deep: true,
         },
 
     },  // end of 'watch'
     mounted() {
         this.$refs['cnv'].focus()
-        if (this.annotations) {
-            console.log(typeof this.annotations)
-            console.log("AAA", Object.values(this.annotations).length);
-        }
         this.update_canvas_image()
         this.update_canvas_display()
     },

@@ -1,16 +1,13 @@
 import imageService from '@/services/imageService'
 
 const state = {
-    images: [],
     annotations: {},
-    sequential_counter: 0,
     canvas_image: undefined,
+    images: [],
+    sequential_counter: 0,
 }
 
 const getters = {
-    images: state => {
-        return state.images
-    },
     annotation: (state, img_id) => {
         try {
             return state.annotations[img_id].annotation
@@ -19,11 +16,17 @@ const getters = {
             return undefined
         }
     },
-    sequential_counter: state => {
-        return state.sequential_counter
+    annotations: state => {
+        return state.annotations
     },
     canvas_image: state => {
         return state.canvas_image
+    },
+    images: state => {
+        return state.images
+    },
+    sequential_counter: state => {
+        return state.sequential_counter
     },
 }
 
@@ -83,9 +86,11 @@ const mutations = {
         if (state.annotations[id] === undefined) {
             state.annotations[id] = {}
         }
-        state.annotations[id].img_id = id        // makes things simpler later
-        state.annotations[id].is_dirty = true   // marks to be posted
+        state.annotations[id].img_id = id           // makes things simpler later
+        state.annotations[id].is_dirty = true       // marks to be posted
         state.annotations[id].annotation = payload.annotation
+        console.log(Object.keys(state.annotations).length);
+
     },
     incSeqCounter(state) {
         state.sequential_counter++

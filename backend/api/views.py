@@ -39,7 +39,7 @@ class ImageViewSet(viewsets.ViewSet):
 
     def list(self, request):
         print(" > Listing")
-        MAX_ITEMS_TO_RETURN = 200
+        MAX_ITEMS_TO_RETURN = 5
 
         filtered_set = self.queryset.filter(lens_type="F")  # return only "fake" lenses
         filtered_set = filtered_set.order_by('img_id')
@@ -50,7 +50,7 @@ class ImageViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, pk):
         print(" > Retrieving")
-        image = get_object_or_404(self.queryset, imgID=pk)
+        image = get_object_or_404(self.queryset, img_id=pk)
         serializer = ImageSerializer(image)
         return Response(serializer.data)
 
@@ -84,7 +84,7 @@ class AnnotationViewSet(viewsets.ViewSet):
     def list(self, request):
         """Returns the list of annotations."""
 
-        print(" > Listing")
+        print(" > Listing: {}".format(len(self.queryset)))
         serializer = AnnotationSerializer(self.queryset, context={'request': request}, many=True)
         return Response(serializer.data)
 
@@ -109,20 +109,21 @@ class AnnotationViewSet(viewsets.ViewSet):
 
             print(ann.keys())
 
-            img_instance = Image.objects.get(imgID=ann['imgID'])
-            annotation, _ = Annotation.objects.get_or_create({
-                'annotator': request.user,
-                'image': img_instance,
-            })
-            print(ann['annotation'])
+            img_instance = Image.objects.get(img_id=ann['img_id'])
+            annotation, _ = Annotation.objects.get_or_create(
+                annotator=request.user,
+                image=img_instance,
+            )
+            # print(ann['annotation'])
             annotation.annotation = ann['annotation'] if 'annotation' in ann else ""
             try:
-                annotation.save()
-                print("New annotation stored.")
-                successes.append(img_instance.imgID)
+                response = annotation.save()
+                print("New annotation stored: {} -- {} :: {}".format(
+                    response, annotation.id, ann['img_id']))
+                successes.append(img_instance.img_id)
             except Exception as err:
-                failures.append(img_instance.imgID)
-                print(err)
+                failures.append(img_instance.img_id)
+                print("Failed to store annoration: {}".format(err))
 
         if len(failures) == 0:
             return Response(
@@ -134,16 +135,16 @@ class AnnotationViewSet(viewsets.ViewSet):
                 },
                 status=status.HTTP_201_CREATED,
             )
-        else:
-            return Response(
-                {
-                    "message": "some annotations could NOT be saved.",
-                    "success": False,
-                    "successes": successes,
-                    "failures": failures,
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
+
+        return Response(
+            {
+                "message": "some annotations could NOT be saved.",
+                "success": False,
+                "successes": successes,
+                "failures": failures,
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 # class AnnotationDetail(viewsets.ViewSet):
