@@ -130,14 +130,33 @@ Heroku's nodejs buildpack will handle install for all the dependencies from the 
 
 ## 3. Management
 
-### 3.1 Dashboards
+### 3.1 CLI
+
+```sh
+./manage.py dbshell
+
+# list databases
+\l
+
+# list tables
+\d
+
+# describe a table
+\d api_annotation
+
+# run a query - don't forget the semicolon:
+SELECT id, annotator_id, image_id FROM api_annotation;
+
+```
+
+### 3.2 Dashboards
 
 Feature | Default location | Comment
 ------- | ---------------- | -------
 Django REST Framework | http://localhost:8000/api | Only available in development (_i.e._ `DEBUG=True`)
 Django Administration Panel | http://localhost:8000/api/admin | Credentials created with `python manage.py createsuperuser`
 
-### 3.2 Template Structure
+### 3.3 Template Structure
 
 | Location             |  Content                                   |
 |----------------------|--------------------------------------------|

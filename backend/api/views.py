@@ -96,7 +96,7 @@ class AnnotationViewSet(viewsets.ViewSet):
         serializer = AnnotationSerializer(image)
         return Response(serializer.data)
 
-    # @action(detail=True, methods=['post'], name='Set Annotation')
+
     def create(self, request):
         """Create or update the annotation for an image."""
 
@@ -106,8 +106,6 @@ class AnnotationViewSet(viewsets.ViewSet):
         successes = list()
         print(len(request.data))
         for ann in request.data:
-
-            print(ann.keys())
 
             img_instance = Image.objects.get(img_id=ann['img_id'])
             annotation, _ = Annotation.objects.get_or_create(
