@@ -50,10 +50,10 @@ export default {
     },
     computed: {
         ...mapState('images', [
-            'images',
             'annotations',
-            'sequential_counter',
             'canvas_image',
+            'images',
+            'sequential_counter',
         ]),
         img_id_short() {
             if (this.canvas_image && this.canvas_image.img_id) {
