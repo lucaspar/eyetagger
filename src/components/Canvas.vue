@@ -267,7 +267,7 @@ export default {
         },
 
         // post annotations to server when they change
-        comp_annotations: {
+        annotations: {
             handler: 'post_annotations',
             immediate: true,
             deep: true,

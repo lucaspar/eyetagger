@@ -1,35 +1,30 @@
+import axios from 'axios'
 import api from '@/services/api'
 
 const state = {
     is_authenticated: false,
-    user: {
-        username: "Anonymous",
-        auth_type: undefined,
-    },
+    auth_token: undefined,
 }
 
 const getters = {
     is_authenticated: state => {
         return state.is_authenticated
     },
-    username: state => {
-        return state.user.username
-    },
-    auth_type: state => {
-        return state.user.auth_type
+    auth_token: state => {
+        return state.auth_token
     },
 }
 
 const actions = {
     login({ commit }, payload) {
         console.log(" > Logging in...:", payload);
-        api.post(`auth/login/`, payload).then(      // trailing slash matters
+        return api.post(`auth/token/login/`, payload).then(      // trailing slash matters
             response => commit('login', response.data)
         )
     },
-    logout({ commit }, payload) {
-        console.log(" > Logging out...:", payload);
-        api.post(`auth/logout/`, payload).then(     // trailing slash matters
+    logout({ commit }) {
+        console.log(" > Logging out...:");
+        return api.post(`auth/token/logout/`).then(     // trailing slash matters
             response => commit('logout', response.data)
         )
     },
@@ -37,12 +32,18 @@ const actions = {
 
 const mutations = {
     login(state, response) {
-        console.log("RESPONSE:", response.data);
-        // state.is_authenticated = true
+        if (response.auth_token) {
+            state.is_authenticated = true
+            state.auth_token = response.auth_token
+            axios.defaults.headers.common = { 'Authorization': `Token ${state.auth_token}` }
+            console.log(" > Authenticated :: ", state.auth_token);
+        }
     },
-    logout(state, response) {
-        console.log("RESPONSE:", response);
+    logout(state) {
         state.is_authenticated = false
+        state.auth_token = undefined
+        axios.defaults.headers.common = { 'Authorization': "" }
+        console.log(" > Logged out!");
     },
 }
 

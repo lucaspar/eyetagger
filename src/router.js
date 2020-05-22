@@ -26,6 +26,7 @@ const router = new Router({
             path: '/login',
             name: 'login',
             component: Login,
+            props: true,
         },
         {
             path: '/thankyou',
@@ -59,9 +60,10 @@ router.beforeEach((to, from, next) => {
     if (to.matched.some(record => record.meta.requiresAuth)) {
         // this route requires auth, check if logged in
         // if not, redirect to login page.
-        if (!store.getters.isLoggedIn) {
+        if (!store.getters['auth/is_authenticated']) {
             next({ name: 'login' })
-        } else {
+        }
+        else {
             next()
         }
     }

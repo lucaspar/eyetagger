@@ -21,7 +21,7 @@
             </div>
             <div class="field is-right">
             <p class="control is-pulled-right">
-                <button class="button is-info" @click="login">
+                <button class="button is-info" @click="run_login">
                 Login
                 </button>
             </p>
@@ -32,25 +32,51 @@
 </template>
 
 <script>
+// import { mapState } from 'vuex'
+
 export default {
     name: 'Login',
+    props: ['logout'],
+    computed: {
+        // ...mapState('auth', [
+        //     'is_authenticated',
+        //     'auth_token',
+        // ]),
+    },
     data() {
         return {
             'username': "",
             'password': "",
         }
     },
+    created() {
+        console.log("LOGOUT:", this.logout);
+
+        if (this.logout) {
+            this.run_logout()
+        }
+    },
     methods: {
-        login() {
+        run_login() {
             const payload = {
                 username: this.username,
                 password: this.password,
             }
-            this.$store.dispatch('auth/login', payload)
+            this.$store.dispatch('auth/login', payload).then(() => {
+                // if there is no error go to annotation view
+                if (this.$store.getters.error == undefined) {
+                    this.$router.push({ name: 'annotation' })
+                }
+            })
         },
         // Log the user out
-        logout() {
-            this.$store.dispatch('auth/logout')
+        run_logout() {
+            this.$store.dispatch('auth/logout').then(() => {
+                // if there is no error go to home view
+                if(!this.$store.getters.error){
+                    this.$router.push({ name: 'home' })
+                }
+            })
         }
     },
 }

@@ -28,7 +28,8 @@ urlpatterns = [
     path('api/admin/', admin.site.urls),
 
     # api authentication
-    path('api/auth/', include('rest_framework.urls')),
+    # path('api/auth/', include('rest_framework.urls')),
+    path('api/auth/', include('djoser.urls.authtoken')),
 
     # user
     path('users/', UserList.as_view()),

@@ -5,9 +5,21 @@
                 <h1 class="title is-2">Iris Annotation Tool</h1>
             </template>
             <template slot="end">
-                <b-navbar-item><router-link :to="{ name: 'home' }">Home</router-link></b-navbar-item>
-                <b-navbar-item><router-link :to="{ name: 'annotation' }">Annotation Demo</router-link></b-navbar-item>
-                <b-navbar-item><router-link :to="{ name: 'visualization' }">Visualization Demo</router-link></b-navbar-item>
+                <b-navbar-item><router-link :to="{ name: 'home' }">
+                    Home
+                </router-link></b-navbar-item>
+                <b-navbar-item><router-link :to="{ name: 'annotation' }">
+                    Annotation Demo
+                </router-link></b-navbar-item>
+                <b-navbar-item><router-link :to="{ name: 'visualization' }">
+                    Visualization Demo
+                </router-link></b-navbar-item>
+                <b-navbar-item v-if="is_authenticated">
+                    <router-link :to="{ name: 'login', params: { logout: true } }">Logout
+                </router-link></b-navbar-item>
+                <b-navbar-item v-else>
+                    <router-link :to="{ name: 'login' }">Login
+                </router-link></b-navbar-item>
             </template>
         </b-navbar>
         <router-view />
@@ -15,14 +27,37 @@
 </template>
 
 <script>
-// import { mapState } from 'vuex'
+import { mapState } from 'vuex'
 
 export default {
     name: "App",
+    computed: {
+        ...mapState('auth', [
+            'is_authenticated',
+        ]),
+    },
     created() {
         // get available images once app is created
-        this.$store.dispatch('images/getImages')
+        if (this.is_authenticated) {
+            this.fetch_images()
+        }
     },
+    methods: {
+        fetch_images() {
+            if (this.is_authenticated) {
+                this.$store.dispatch('images/getImages')
+            }
+            else {
+                console.log("User not authenticated. Redirected to login.");
+                this.$router.push({ name: 'login' })
+            }
+        }
+    },
+    watch: {
+        is_authenticated: {
+            handler: 'fetch_images',
+        },
+    }
     // computed: mapState({
     //     images: state => state.images.images
     // }),

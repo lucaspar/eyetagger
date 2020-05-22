@@ -42,7 +42,7 @@ const actions = {
         const annotations = Object.values(state.annotations).filter(v => v.is_dirty)
         if (annotations.length > 0) {
             console.log("Updating " + annotations.length + " dirty annotations")
-            imageService.postAnnotations(annotations)
+            return imageService.postAnnotations(annotations)
                 .then(response => {
                     commit('postAnnotations', response)
                 })
@@ -51,19 +51,19 @@ const actions = {
     },
     setAnnotation({ commit }, payload) {
         console.log("Setting new annotation locally")
-        commit('setAnnotation', payload)
+        return commit('setAnnotation', payload)
     },
     incSeqCounter({ commit }) {
-        commit('incSeqCounter')
+        return commit('incSeqCounter')
     },
     decSeqCounter({ commit }) {
-        commit('decSeqCounter')
+        return commit('decSeqCounter')
     },
     setSeqCounter({ commit }, new_val) {
-        commit('setSeqCounter', new_val)
+        return commit('setSeqCounter', new_val)
     },
     setCanvasImage({ commit }, new_val) {
-        commit('setCanvasImage', new_val)
+        return commit('setCanvasImage', new_val)
     },
 }
 
