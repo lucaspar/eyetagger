@@ -12,7 +12,8 @@ const getters = {
         try {
             return state.annotations[img_id].annotation
         }
-        catch(_) {
+        catch(err) {
+            console.error("Error storing annotation:", img_id, err)
             return undefined
         }
     },
@@ -32,13 +33,14 @@ const getters = {
 
 const actions = {
     getImages({ commit }) {
-        imageService.fetchImages()
+        return imageService.fetchImages()
             .then(images => {
                 commit('setImages', images)
             })
     },
     postAnnotations({ commit, state }) {
 
+        console.log(' > Uploading annotations')
         const annotations = Object.values(state.annotations).filter(v => v.is_dirty)
         if (annotations.length > 0) {
             console.log("Updating " + annotations.length + " dirty annotations")
@@ -50,7 +52,6 @@ const actions = {
 
     },
     setAnnotation({ commit }, payload) {
-        console.log("Setting new annotation locally")
         return commit('setAnnotation', payload)
     },
     incSeqCounter({ commit }) {
@@ -72,15 +73,16 @@ const mutations = {
         state.images = images
     },
     postAnnotations(state, response) {
-        console.log(response)
         // TODO: lock canvas between submission and this response,
         //      to avoid losing new changes on slower networks
         response.successes.map(img => {
-            console.log("Not dirty: " + img)
+            console.log("\t\tSuccessfully uploaded", img)
             state.annotations[img].is_dirty = false
         })
     },
     setAnnotation(state, payload) {
+
+        console.log(" > Setting new annotation locally")
         // console.log(payload.img_id, payload.annotation)
         const id = payload.img_id
         if (state.annotations[id] === undefined) {
@@ -106,7 +108,7 @@ const mutations = {
             console.log("WARN :: Trying to set canvas_image with no value.")
             return
         }
-        console.log("Updated canvas image: " + new_val.img_path)
+        console.log(" > Updated canvas image: " + new_val.img_path)
         state.canvas_image = new_val
     },
 }

@@ -28,17 +28,20 @@
 
 <script>
 import { mapState } from 'vuex'
+import axios from 'axios'
 
 export default {
     name: "App",
     computed: {
         ...mapState('auth', [
             'is_authenticated',
+            'auth_token',
         ]),
     },
     created() {
         // get available images once app is created
         if (this.is_authenticated) {
+            axios.defaults.headers.common = { 'Authorization': `Token ${this.auth_token}` }
             this.fetch_images()
         }
     },

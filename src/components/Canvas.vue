@@ -63,12 +63,6 @@ export default {
         },
         comp_annotations() {
             return this.annotations
-            // console.log(this.images)
-            // if (this.images && this.images.annotations) {
-            //     console.log(this.images.annotations.length)
-            //     return this.images.annotations
-            // }
-            // return {}
         },
     },
     methods: {
@@ -93,8 +87,7 @@ export default {
             this.$store.dispatch('images/incSeqCounter')
         },
 
-        post_annotations: function() {          // WHY THIS WATCHER IS NOT EXECUTED ???
-            console.log('POSTING ANNOTATIONS')
+        post_annotations: function() {
             this.$store.dispatch('images/postAnnotations')
         },
 
@@ -105,8 +98,6 @@ export default {
         },
 
         export_annotation: function() {
-            console.log('Exporting annotation');
-            console.log("ANNS WEWE", Object.keys(this.annotations).length);
 
             // other useful methods:
             // console.log(this.canvas.main_canvas.toSVG())
@@ -114,8 +105,14 @@ export default {
 
             // clone objects from main-canvas, as we cannot directly
             // export tainted canvases due to security constraints
-            this.canvas.main_canvas.getObjects()
-                .map(o => this.canvas.export_canvas.add(o))
+            const objs = this.canvas.main_canvas.getObjects()
+            if (objs.length === 0) {
+                console.log("Empty canvas - ignoring");
+                return
+            }
+
+            console.log(' > Exporting annotation');
+            objs.map(o => this.canvas.export_canvas.add(o))
             this.canvas.export_canvas.renderAll()
 
             // convert canvas to image
@@ -196,7 +193,7 @@ export default {
             }
             this.image.onload = () => {
 
-                console.log("LOADED:", this.canvas_image_source);
+                console.log(" > Loaded image:", this.canvas_image_source);
 
                 // remove old objects
                 this.canvas_clear()
@@ -234,8 +231,8 @@ export default {
                     originX: 'center',
                     originY: 'center',
                 })
-                const items = this.canvas.main_canvas.getObjects()
-                console.log("Objects in this annotation:", items.length);
+                // const items = this.canvas.main_canvas.getObjects()
+                // console.log("Objects in this annotation:", items.length);
 
                 // cloning an object
                 // const new_item = fabric.util.object.clone(items[items.length-1])
@@ -267,9 +264,9 @@ export default {
         },
 
         // post annotations to server when they change
-        annotations: {
+        comp_annotations: {
             handler: 'post_annotations',
-            immediate: true,
+            // immediate: true,
             deep: true,
         },
 
