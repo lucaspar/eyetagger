@@ -16,6 +16,7 @@ whitenoise = "==5"
 pandas = "*"
 django-rest-knox = "*"
 djoser = "*"
+django-extensions = "*"
 
 [dev-packages]
 
