@@ -5,7 +5,7 @@ import Cookies from 'js-cookie'
 
 export default axios.create({
     baseURL: '/api',
-    timeout: 300,
+    timeout: 60000,     // ms
     headers: {
         // 'Access-Control-Allow-Origin': '*',
         // 'Authorization': 'Token ' + this.store.getters['auth/is_authenticated'],

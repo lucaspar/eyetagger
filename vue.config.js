@@ -1,5 +1,6 @@
 // const IS_PRODUCTION = process.env.NODE_ENV === 'production'
-process.env.VUE_APP_DATASET_ROOT = "http://localhost:8000/static/data/images"
+// process.env.VUE_APP_DATASET_ROOT = "http://jarviscore.resnet.nd.edu:8000/static/data/images"
+process.env.VUE_APP_DATASET_ROOT = "/static/data/images"
 
 module.exports = {
     outputDir: 'dist',

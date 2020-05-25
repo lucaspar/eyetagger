@@ -32,6 +32,7 @@ const actions = {
 
 const mutations = {
     login(state, response) {
+        console.log(response)
         if (response.auth_token) {
             state.is_authenticated = true
             state.auth_token = response.auth_token

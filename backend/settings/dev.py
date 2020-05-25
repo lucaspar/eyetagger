@@ -43,10 +43,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'whitenoise.runserver_nostatic',  # overrides django behavior, to use whitenoise instead
     'django.contrib.staticfiles',
+    'rest_framework.authtoken',
     'rest_framework',
     'backend.api',
     'djoser',
-    'rest_framework.authtoken',
 ]
 
 REST_FRAMEWORK = {
@@ -134,7 +134,7 @@ DATABASES = {
     'default': {
         # 'ENGINE': 'django.db.backends.sqlite3',
         # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE':   'django.db.backends.postgresql_psycopg2',
         'NAME':     env('DB_NAME'),
         'USER':     env('DB_USER'),
         'PASSWORD': env('DB_PASS'),
@@ -180,10 +180,11 @@ MIDDLEWARE_CLASSES = (
 )
 
 # Static files
-STATIC_URL = '/static/'                                     # modify here for CDN hosting, including the CDN domain in front
-STATIC_ROOT = os.path.join(BASE_DIR, 'dist', 'static')      # static files in the same location as webpack build files
-DATASET_ROOT = os.path.join(STATIC_ROOT, 'data', 'images')  # dataset files
-STATICFILES_DIRS = []
+STATICFILES_DIRS    = []
+STATIC_HOST         = os.environ.get('DJANGO_STATIC_HOST', '')      # modify host for CDN hosting,
+STATIC_URL          = os.path.join(STATIC_HOST, 'static') + '/'
+STATIC_ROOT         = os.path.join(BASE_DIR, 'dist', 'static')     # static files in the same location as webpack build files
+DATASET_ROOT        = os.path.join(STATIC_ROOT, 'data', 'images')  # dataset files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Insert Whitenoise Middleware at top but below Security Middleware

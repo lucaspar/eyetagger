@@ -7,11 +7,9 @@ from .dev import *
 ############
 # DATABASE #
 ############
-DATABASES = {
-    'default': dj_database_url.config(
-        default=os.getenv('DB_HOST')
-    )
-}
+# DATABASES['default'].update(
+#     dj_database_url.config(default=os.getenv('DB_HOST'))
+# )
 
 ############
 # SECURITY #
