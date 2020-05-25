@@ -1,0 +1,4 @@
+[core]
+    remote = gsbucket
+['remote "gsbucket"']
+    url = gs://nd-iris-annotation

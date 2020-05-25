@@ -1,0 +1,7 @@
+md5: 0f917a6c7ec13111c9ea2dc9584b9611
+outs:
+- md5: d6a65082559f361ae2a2f98a0ee2a991.dir
+  path: backend/dataset/images
+  cache: true
+  metric: false
+  persist: false
