@@ -18,6 +18,7 @@ django-rest-knox = "*"
 djoser = "*"
 django-extensions = "*"
 google-cloud-storage = "*"
+django-cors-headers = "*"
 
 [dev-packages]
 
