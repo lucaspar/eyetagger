@@ -17,6 +17,7 @@ pandas = "*"
 django-rest-knox = "*"
 djoser = "*"
 django-extensions = "*"
+google-cloud-storage = "*"
 
 [dev-packages]
 

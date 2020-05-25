@@ -1,0 +1,15 @@
+[Unit]
+Description=gunicorn daemon
+After=network.target
+
+[Service]
+User=lucas
+Group=www-data
+WorkingDirectory=/home/lucas/work/iris/iris-annotator
+ExecStart=/home/lucas/.local/bin/pipenv run gunicorn \
+	--log-level debug --access-logfile - \
+	--workers 3 \
+	--bind unix:/tmp/iris.sock backend.wsgi:application
+
+[install]
+WantedBy=multi-user.target
