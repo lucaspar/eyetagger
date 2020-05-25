@@ -33,7 +33,7 @@ echo "deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main" | sudo tee 
 wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
 sudo apt-get update
 sudo apt install -y postgresql-12
-cp db_creation.sql /tmp/ && chown postgres:postgres /tmp/db_creation.sql
+cp deploy/db_creation.sql /tmp/ && chown postgres:postgres /tmp/db_creation.sql
 chmod a+r /tmp/db_creation.sql
 echo "Please, write '\i db_creation.sql' in this shell, then '\q' to quit:"
 # psql -f db_creation.sql
@@ -61,7 +61,7 @@ echo 'export GOOGLE_APPLICATION_CREDENTIALS="$HOME/.gcp/iris-admin.json"' >> ~/.
 
 # prepare data
 dvc pull
-ln -s ./backend/dataset ./dist/static/data
+ln -s $(pwd)/backend/dataset $(pwd)/dist/static/data
 
 # migrate database
 ./manage.py migrate
@@ -70,4 +70,11 @@ ln -s ./backend/dataset ./dist/static/data
 cp deploy/gunicorn.service /etc/systemd/system/gunicorn.service
 
 # replace nginx configuration
+nginx=stable # use nginx=development for latest development version
+sudo add-apt-repository -y ppa:nginx/$nginx
+sudo apt update
+sudo apt install -y nginx
+
+sudo service nginx start
 cp deploy/default /etc/nginx/sites-available/default
+sudo service nginx restart
