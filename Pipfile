@@ -17,6 +17,7 @@ pandas = "*"
 django-rest-knox = "*"
 djoser = "*"
 django-extensions = "*"
+dvc = "*"
 
 [dev-packages]
 
