@@ -3,7 +3,7 @@ Description=gunicorn daemon
 After=network.target
 
 [Service]
-User=www-data
+User=root
 Group=www-data
 WorkingDirectory=/app/
 ExecStart=/usr/local/bin/pipenv run gunicorn \

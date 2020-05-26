@@ -68,9 +68,13 @@ ln -s $(pwd)/backend/dataset $(pwd)/dist/static/data
 
 # migrate database
 ./manage.py migrate
+echo "Create the superuser now, but don't forget the password!"
+./manage.py createsuperuser
 
 # copy gunicorn configuration
 cp deploy/gunicorn.service.root /etc/systemd/system/gunicorn.service
+sudo systemctl daemon-reload
+sudo service gunicorn restart
 
 # install nginx
 nginx=stable # use nginx=development for latest development version
@@ -84,4 +88,34 @@ cp deploy/default /etc/nginx/sites-available/default
 sudo service nginx restart
 
 # create static files symbolic link
-ln -s /var/www/iris/common
+mkdir -p /var/www/iris
+ln -s /app/dist /var/www/iris/common
+
+# fix permissions
+chmod +x /var/www/iris/
+chmod +x /var/www/
+sudo chgrp -R www-data /var/www/iris/
+sudo chgrp -R www-data /var/www/iris/
+sudo chown -R www-data: /var/www/iris/
+
+# example of working permissions:
+#
+#   root@iris-webapp:/app# namei -l /var/www/iris/common/static/favicon.ico
+#       f: /var/www/iris/common/static/favicon.ico
+#       drwxr-xr-x root     root     /
+#       drwxr-xr-x root     root     var
+#       drwxrwx--x root     www-data www
+#       drwxrwsr-x www-data www-data iris
+#       lrwxrwxrwx www-data www-data common -> /app/dist
+#       drwxr-xr-x root     root       /
+#       drwxr-xr-x www-data www-data   app
+#       drwxr-xr-x www-data www-data   dist
+#       drwxr-xr-x www-data www-data static
+#       -rw-r--r-- www-data www-data favicon.ico
+
+
+# debugging nginx:
+# tail -n 50 /var/log/nginx/iris.error.log
+
+# debugging gunicorn:
+# sudo journalctl -u gunicorn | tail -n 50
