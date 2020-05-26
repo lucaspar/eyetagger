@@ -30,6 +30,7 @@ BASE_DIR = os.path.dirname(SETTINGS_DIR)
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env('DEBUG')
 DJANGO_DEBUG = DEBUG
+CSRF_TRUSTED_ORIGINS = [ 'localhost', 'iris.devincive.com' ]
 ALLOWED_HOSTS = ['*']
 
 # Application definition
