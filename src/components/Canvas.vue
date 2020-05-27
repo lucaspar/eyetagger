@@ -112,23 +112,23 @@ export default {
         },
 
         prev_image: function() {
+            let next_action = 'images/decSeqCounter'
             if (this.sequential_counter == undefined || this.sequential_counter <= 0) {
-                return
+                next_action = undefined
             }
-            this.export_annotation()
-            this.$store.dispatch('images/decSeqCounter')
+            this.export_annotation(next_action)
         },
 
         next_image: function() {
             if (this.sequential_counter == undefined) {
                 return
             }
-            this.export_annotation()
+            let next_action = 'images/incSeqCounter'
             if (this.sequential_counter >= this.images.length - 1) {
                 this.$router.push({ name: 'thankyou' })
-                return
+                next_action = undefined
             }
-            this.$store.dispatch('images/incSeqCounter')
+            this.export_annotation(next_action)
         },
 
         post_annotations: function() {
@@ -141,7 +141,7 @@ export default {
             })
         },
 
-        export_annotation: function() {
+        export_annotation: function(next_action) {
 
             // other useful methods:
             // console.log(this.canvas.main_canvas.toSVG())
@@ -151,7 +151,8 @@ export default {
             // export tainted canvases due to security constraints
             const objs = this.canvas.main_canvas.getObjects()
             if (objs.length === 0) {
-                return  // empty canvas, do nothing
+                next_action && this.$store.dispatch(next_action)
+                return  // empty canvas, stop function
             }
 
             console.log(' > Exporting annotation');
@@ -185,6 +186,7 @@ export default {
                         annotation: base64data,
                     }
                     this.$store.dispatch('images/setAnnotation', payload)
+                    next_action && this.$store.dispatch(next_action)
                 }
             })
 
@@ -236,7 +238,7 @@ export default {
             }
             this.image.onload = () => {
 
-                console.log(" > Loaded image:", this.canvas_image_source);
+                console.log(" > Loaded image:", this.canvas_image_source, this.canvas_image);
 
                 // remove old objects
                 this.canvas_clear()
