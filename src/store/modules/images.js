@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/browser';
 import imageService from '@/services/imageService'
 
 const state = {
@@ -13,7 +14,7 @@ const getters = {
             return state.annotations[img_id].annotation
         }
         catch(err) {
-            console.error("Error storing annotation:", img_id, err)
+            Sentry.captureMessage("Error storing annotation:", img_id, err)
             return undefined
         }
     },
@@ -38,7 +39,7 @@ const actions = {
                 commit('setImages', images)
             })
     },
-    postAnnotations({ commit, state }) {
+    postAnnotations({ dispatch, commit, state }) {
 
         console.log(' > Uploading annotations')
         const annotations = Object.values(state.annotations).filter(v => v.is_dirty)
@@ -47,6 +48,10 @@ const actions = {
             return imageService.postAnnotations(annotations)
                 .then(response => {
                     commit('postAnnotations', response)
+                    if (response.successes && response.successes.length > 0) {
+                        const msg = 'Uploaded ' + response.successes.length + ' annotations'
+                        dispatch('toasts/success', msg, { root: true })
+                    }
                 })
         }
 
@@ -76,7 +81,6 @@ const mutations = {
         // TODO: lock canvas between submission and this response,
         //      to avoid losing new changes on slower networks
         response.successes.map(img => {
-            console.log("\t\tSuccessfully uploaded", img)
             state.annotations[img].is_dirty = false
         })
     },
@@ -105,7 +109,7 @@ const mutations = {
     },
     setCanvasImage(state, new_val) {
         if (new_val == undefined) {
-            console.log("WARN :: Trying to set canvas_image with no value.")
+            Sentry.captureMessage("WARN :: Trying to set canvas_image with no value.")
             return
         }
         console.log(" > Updated canvas image: " + new_val.img_path)

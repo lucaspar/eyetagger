@@ -21,7 +21,33 @@
                         <!-- <div class="column is-6"><button class="button is-info" id="btn-undo">       <b-icon pack="fas" icon="undo">        </b-icon> <span>Undo (Z)</span>     </button>   </div>
                         <div class="column is-6"><button class="button is-info" id="btn-redo">       <b-icon pack="fas" icon="redo">        </b-icon> <span>Redo (X)</span>     </button>   </div> -->
                         <!-- <div class="column is-6 is-offset-3"><button class="button is-info" id="btn-brush"> <b-icon pack="fas" icon="brush">       </b-icon> <span>Brush</span>    </button>   </div> -->
-                        <div class="column is-6 is-offset-3"><hr><button class="button is-danger" id="btn-eraser"   @click="canvas_clear"> <b-icon pack="fas" icon="eraser">       </b-icon> <span>Clear canvas</span>    </button>   </div>
+                        <div class="column is-6 is-offset-3">
+                            <hr>
+
+                            <span>Brush size</span>
+                            <div class="columns">
+                                <div class="column">
+                                    <button class="button is-info" id="btn-brush-dec" @click="canvas_brush_dec">
+                                        <b-icon pack="fas" icon="minus"></b-icon>
+                                    </button>
+                                </div>
+                                <div class="column">
+                                    {{ this.brush_size }}
+                                </div>
+                                <div class="column">
+                                    <button class="button is-info" id="btn-brush-inc" @click="canvas_brush_inc">
+                                        <b-icon pack="fas" icon="plus"></b-icon>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column is-6 is-offset-3">
+                            <hr>
+                            <button class="button is-danger" id="btn-eraser" @click="canvas_clear">
+                                <b-icon pack="fas" icon="eraser"></b-icon>
+                                <span>Clear canvas</span>
+                            </button>
+                        </div>
                         <!-- <div class="column is-6 is-offset-3"><hr><button class="button is-success" id="btn-save" @click="export_annotation"> <b-icon pack="fas" icon="save">            </b-icon> <span>Export</span>    </button>   </div> -->
                     </div>
                 </div>
@@ -36,6 +62,7 @@
 <script>
 import { fabric } from 'fabric'
 import { mapState } from 'vuex'
+import * as Sentry from '@sentry/browser';
 
 export default {
     name: 'Canvas',
@@ -44,6 +71,7 @@ export default {
         return {
             // the CanvasRenderingContext to turn canvas into a reactive component:
             paths_group: new fabric.Group(),
+            brush_size: 4,
             context: null,
             image: null,
         }
@@ -66,6 +94,22 @@ export default {
         },
     },
     methods: {
+
+        canvas_brush_dec() {
+            if (this.brush_size <= 1) {
+                return
+            }
+            this.brush_size--;
+            this.canvas.main_canvas.freeDrawingBrush.width = this.brush_size * 5;
+        },
+
+        canvas_brush_inc() {
+            if (this.brush_size >= 6) {
+                return
+            }
+            this.brush_size++;
+            this.canvas.main_canvas.freeDrawingBrush.width = this.brush_size * 5;
+        },
 
         prev_image: function() {
             if (this.sequential_counter == undefined || this.sequential_counter <= 0) {
@@ -107,8 +151,7 @@ export default {
             // export tainted canvases due to security constraints
             const objs = this.canvas.main_canvas.getObjects()
             if (objs.length === 0) {
-                console.log("Empty canvas - ignoring");
-                return
+                return  // empty canvas, do nothing
             }
 
             console.log(' > Exporting annotation');
@@ -189,7 +232,7 @@ export default {
             this.image.src = this.canvas_image_source
             this.image.crossOrigin = "Anonymous";
             this.image.onerror = () => {
-                console.error("Image not found:", this.image.src);
+                Sentry.captureMessage("Image not found:", this.image.src);
             }
             this.image.onload = () => {
 
@@ -214,8 +257,8 @@ export default {
                 this.canvas.export_canvas.setDimensions({width: this.image.naturalWidth, height: this.image.naturalHeight })
 
                 // set brush properties
-                this.canvas.main_canvas.freeDrawingBrush.width = 20
-                this.canvas.main_canvas.freeDrawingBrush.color = "#f005"
+                this.canvas.main_canvas.freeDrawingBrush.width = this.brush_size * 5
+                this.canvas.main_canvas.freeDrawingBrush.color = "#0f05"
 
             }
 

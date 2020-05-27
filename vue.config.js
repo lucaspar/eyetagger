@@ -1,6 +1,9 @@
 // const IS_PRODUCTION = process.env.NODE_ENV === 'production'
 // process.env.VUE_APP_DATASET_ROOT = "http://jarviscore.resnet.nd.edu:8000/static/data/images"
-process.env.VUE_APP_DATASET_ROOT = "/static/data/images"
+process.env.VUE_APP_DATASET_ROOT    = "/static/data/images"
+process.env.VUE_APP_SENTRY_KEY      = "944a3d1092cd419c9c50cd8c29f32489"
+process.env.VUE_APP_SENTRY_ORG      = "o124424"
+process.env.VUE_APP_SENTRY_PROJECT  = "1401289"
 
 module.exports = {
     outputDir: 'dist',
@@ -19,10 +22,10 @@ module.exports = {
                 // Forward frontend dev server request for /api to django dev server
                 target: 'http://localhost:8000/',
             },
-            // '/static/*': {
-            //     // Forward frontend dev server request for /api to django dev server
-            //     target: 'http://localhost:8000/',
-            // }
+            '/static/*': {
+                // Forward frontend dev server request for /api to django dev server
+                target: 'http://localhost:8000/',
+            }
         },
         disableHostCheck: true,
     }

@@ -11,9 +11,9 @@
                 <b-navbar-item><router-link :to="{ name: 'annotation' }">
                     Annotation Demo
                 </router-link></b-navbar-item>
-                <b-navbar-item><router-link :to="{ name: 'visualization' }">
+                <!-- <b-navbar-item><router-link :to="{ name: 'visualization' }">
                     Visualization Demo
-                </router-link></b-navbar-item>
+                </router-link></b-navbar-item> -->
                 <b-navbar-item v-if="is_authenticated">
                     <router-link :to="{ name: 'login', params: { logout: true } }">Logout
                 </router-link></b-navbar-item>
@@ -33,6 +33,10 @@ import axios from 'axios'
 export default {
     name: "App",
     computed: {
+        ...mapState('toasts', [
+            'errors',
+            'successes',
+        ]),
         ...mapState('auth', [
             'is_authenticated',
             'auth_token',
@@ -54,11 +58,31 @@ export default {
                 console.log("User not authenticated. Redirected to login.");
                 this.$router.push({ name: 'login' })
             }
-        }
+        },
+        toast_errors() {
+            this.errors.map(msg => this.$awn.alert(msg))
+            if (this.errors.length > 0) {
+                this.$store.dispatch('toasts/clearErrors')
+            }
+        },
+        toast_successes() {
+            this.successes.map(msg => this.$awn.success(msg))
+            if (this.successes.length > 0) {
+                this.$store.dispatch('toasts/clearSuccesses')
+            }
+        },
     },
     watch: {
         is_authenticated: {
             handler: 'fetch_images',
+        },
+        errors: {
+            handler: 'toast_errors',
+            deep: true,
+        },
+        successes: {
+            handler: 'toast_successes',
+            deep: true,
         },
     }
     // computed: mapState({

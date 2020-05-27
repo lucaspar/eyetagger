@@ -3,29 +3,33 @@
         <div class="column is-narrow has-text-centered">
             <img class="" src='@/assets/logo-iris.png'>
 
-            <div class="field">
-            <p class="control has-icons-left has-icons-right">
-                <input class="input" v-model="username" type="text" placeholder="Username">
-                <span class="icon is-small is-left">
-                <i class="fas fa-user"></i>
-                </span>
-            </p>
-            </div>
-            <div class="field">
-            <p class="control has-icons-left">
-                <input class="input" v-model="password" type="password" placeholder="Password">
-                <span class="icon is-small is-left">
-                <i class="fas fa-lock"></i>
-                </span>
-            </p>
-            </div>
-            <div class="field is-right">
-            <p class="control is-pulled-right">
-                <button class="button is-info" @click="run_login">
-                Login
-                </button>
-            </p>
-            </div>
+            <form v-on:submit.prevent="">
+
+                <div class="field">
+                <p class="control has-icons-left has-icons-right">
+                    <input class="input" v-model="username" type="text" placeholder="Username">
+                    <span class="icon is-small is-left">
+                    <i class="fas fa-user"></i>
+                    </span>
+                </p>
+                </div>
+                <div class="field">
+                <p class="control has-icons-left">
+                    <input class="input" v-model="password" type="password" placeholder="Password">
+                    <span class="icon is-small is-left">
+                    <i class="fas fa-lock"></i>
+                    </span>
+                </p>
+                </div>
+                <div class="field is-right">
+                <p class="control is-pulled-right">
+                    <button class="button is-info" @click="run_login">
+                    Login
+                    </button>
+                </p>
+                </div>
+
+            </form>
 
         </div>
     </div>
@@ -50,8 +54,6 @@ export default {
         }
     },
     created() {
-        console.log("LOGOUT:", this.logout);
-
         if (this.logout) {
             this.run_logout()
         }

@@ -37,7 +37,6 @@ export default {
     },
     created() {
         if (!this.is_all_clean) {
-            console.log(" > Submitting from 'Thank You' view");
             this.post_annotations()
         }
     },
