@@ -19,6 +19,7 @@ djoser = "*"
 django-extensions = "*"
 google-cloud-storage = "*"
 django-cors-headers = "*"
+dvc = "*"
 
 [dev-packages]
 
