@@ -23,6 +23,13 @@
                         <!-- <div class="column is-6 is-offset-3"><button class="button is-info" id="btn-brush"> <b-icon pack="fas" icon="brush">       </b-icon> <span>Brush</span>    </button>   </div> -->
                         <div class="column is-6 is-offset-3">
                             <hr>
+                            <button class="button is-success" id="btn-sync" @click="post_annotations">
+                                <b-icon pack="fas" icon="sync"></b-icon>
+                                <span>Sync</span>
+                            </button>
+                        </div>
+                        <div class="column is-6 is-offset-3">
+                            <hr>
 
                             <span>Brush size</span>
                             <div class="columns">
