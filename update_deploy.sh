@@ -20,6 +20,7 @@ pipenv run ./manage.py migrate
 cp deploy/gunicorn.service.root /etc/systemd/system/gunicorn.service
 sudo systemctl daemon-reload
 sudo service gunicorn restart
+sudo service gunicorn enable
 
 # setting nginx
 cp deploy/default /etc/nginx/sites-available/default
