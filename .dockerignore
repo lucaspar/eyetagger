@@ -1,0 +1,7 @@
+.git/
+.dvc/
+dist/
+.vscode/
+Dockerfile
+node_modules/
+backend/dataset/
