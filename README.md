@@ -19,8 +19,8 @@ Annotation tool for iris images.
 
 Before getting started you should have the following installed and running:
 
-+ Docker
-+ Docker Compose
++ Docker (19.03.11)
++ Docker Compose (1.25.4)
 
 ### 1.2. Link data
 
