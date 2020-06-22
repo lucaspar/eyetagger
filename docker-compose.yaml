@@ -5,31 +5,52 @@ services:
     db:
         image: postgres:13
         env_file:
-        - env/django_db.env
+          - env/django_db.env
         volumes:
-        - ./deploy/db_creation.sh:/docker-entrypoint-initdb.d/init.sh
+          - ./deploy/db_creation.sh:/docker-entrypoint-initdb.d/init.sh
+        networks:
+          - iris-net
 
     web:
         build: .
         # command: pipenv run python manage.py runserver 0.0.0.0:8000
         command: pipenv run gunicorn --log-level debug --access-logfile - --workers 3 --bind 0.0.0.0:8000 backend.wsgi:application
         env_file:
-        - env/django_db.env
-        - env/django_app.env
+          - env/django_db.env
+          - env/django_app.env
         volumes:
-        - .:/app
-        # pipenv run dvc pull
-        # ln -s $(pwd)/backend/dataset $(pwd)/dist/static/data
-        - ./backend/dataset:/app/backend/dataset
-        - ./backend/dataset:/app/dist/static/data
+          - vol-src:/app
+          - vol-dataset:/app/backend/dataset
+          - vol-dataset:/app/dist/static/data
         ports:
-        - "8000:8000"
+          - "8000:8000"
         depends_on:
-        - db
+          - db
+        networks:
+          - net-nginx-proxy
+          - iris-net
 
     nginx:
-        build: ./nginx
+        build: ./deploy/nginx
         ports:
           - 80:80
         depends_on:
           - web
+        networks:
+          - net-nginx-proxy
+
+networks:
+    net_nginx_proxy:
+        external: true
+    net_iris:
+        external: false
+
+volumes:
+    vol-dataset:
+        type: bind
+        source: ./backend/dataset
+        read_only: true
+    vol-src:
+        type: bind
+        source: ./
+        read_only: false

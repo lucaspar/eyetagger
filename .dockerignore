@@ -1,6 +1,7 @@
 .git/
 .dvc/
 dist/
+deploy/
 .vscode/
 Dockerfile
 node_modules/
