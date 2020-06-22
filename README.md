@@ -24,7 +24,7 @@ Before getting started you should have the following installed and running:
 
 ### 1.2. Link data
 
-To pass the images you want to be served with the annotation tool, open `docker-compose.yaml` and edit the volume entry named `vol-dataset` to the bottom of that file. Set the `source` field to point to the directory containing the images.
+To pass the images you want to be served with the annotation tool, open `docker-compose.yaml` and edit the volume entries commented with `dataset`. Set their `source` fields to point to the directory containing the images.
 
 To make things easier when deploying remotely, you can [make use of `dvc`](https://dvc.org/) on your dataset and run commands such as `dvc push` and `dvc pull` to sync the data between a number of machines and a remote (e.g. AWS S3, Google Cloud Storage); similarly to what `git` does with source code.
 
@@ -34,16 +34,18 @@ To make things easier when deploying remotely, you can [make use of `dvc`](https
 
 ```sh
 # create the public network
-docker network create nginx-proxy-net
+docker network create net-nginx-proxy
 
 # build docker images and run containers
 docker-compose up
 
-# run database migrations
+# from another terminal, run the database migrations
 docker exec -it annotation-tool_web_1 pipenv run /app/manage.py migrate
 
 # create django superuser
 docker exec -it annotation-tool_web_1 pipenv run /app/manage.py createsuperuser
+
+# access localhost:8000 in your browser
 ```
 
 ## 2. Deploy

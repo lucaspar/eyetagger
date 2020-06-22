@@ -1,4 +1,4 @@
-version: '3'
+version: '3.3'
 
 services:
 
@@ -9,7 +9,7 @@ services:
         volumes:
           - ./deploy/db_creation.sh:/docker-entrypoint-initdb.d/init.sh
         networks:
-          - iris-net
+          - net-iris
 
     web:
         build: .
@@ -19,16 +19,28 @@ services:
           - env/django_db.env
           - env/django_app.env
         volumes:
-          - vol-src:/app
-          - vol-dataset:/app/backend/dataset
-          - vol-dataset:/app/dist/static/data
+          # source
+          - type: bind
+            source: ./
+            target: /app
+            read_only: false
+          # dataset - web app access
+          - type: bind
+            source: ./backend/dataset
+            target: /app/backend/dataset
+            read_only: true
+          # dataset - guest access
+          - type: bind
+            source: ./backend/dataset
+            target: /app/dist/static/data
+            read_only: true
         ports:
           - "8000:8000"
         depends_on:
           - db
         networks:
           - net-nginx-proxy
-          - iris-net
+          - net-iris
 
     nginx:
         build: ./deploy/nginx
@@ -40,17 +52,7 @@ services:
           - net-nginx-proxy
 
 networks:
-    net_nginx_proxy:
+    net-nginx-proxy:
         external: true
-    net_iris:
+    net-iris:
         external: false
-
-volumes:
-    vol-dataset:
-        type: bind
-        source: ./backend/dataset
-        read_only: true
-    vol-src:
-        type: bind
-        source: ./
-        read_only: false
