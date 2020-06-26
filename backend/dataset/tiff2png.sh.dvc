@@ -1,7 +1,3 @@
-md5: 2be5ce6dd91176e69b4d21a2f16d37ae
 outs:
 - md5: 00b6e061e6936833c2411746e4ea3b86
   path: tiff2png.sh
-  cache: true
-  metric: false
-  persist: false
