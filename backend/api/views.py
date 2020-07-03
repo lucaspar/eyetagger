@@ -1,11 +1,9 @@
-from django.contrib.admin.views.decorators import staff_member_required
 from django.views.decorators.cache import never_cache
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 from django.contrib.auth.models import User
 
 from rest_framework.decorators import permission_classes
-from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import permissions
 from rest_framework import generics
