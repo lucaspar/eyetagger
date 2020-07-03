@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-# Deploy script for annotation tool
+# Manual deploy script for EyeTagger
 
 set -e
 

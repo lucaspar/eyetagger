@@ -1,8 +1,6 @@
-# Iris Annotator
+# EyeTagger | Iris Annotation Tool
 
 <img src="/src/assets/logo-iris.png" alt="Annotator Logo" width="300"/>
-
-Annotation tool for iris images.
 
 ## Summary
 
@@ -19,12 +17,12 @@ Annotation tool for iris images.
 
 Before getting started you should have the following installed and running:
 
-+ Docker (19.03.11)
-+ Docker Compose (1.25.4)
++ Docker >= v19
++ Docker Compose >= v1.25
 
 ### 1.2. Link data
 
-To pass the images you want to be served with the annotation tool, open `docker-compose.yaml` and edit the volume entries commented with `dataset`. Set their `source` fields to point to the directory containing the images.
+To pass the images you want to be served with the EyeTagger, open `docker-compose.yaml` and edit the volume entries commented with `dataset`. Set their `source` fields to point to the directory containing the images.
 
 To make things easier when deploying remotely, you can [make use of `dvc`](https://dvc.org/) on your dataset and run commands such as `dvc push` and `dvc pull` to sync the data between a number of machines and a remote (e.g. AWS S3, Google Cloud Storage); similarly to what `git` does with source code.
 
@@ -40,10 +38,10 @@ docker network create net-nginx-proxy
 docker-compose up
 
 # from another terminal, run the database migrations
-docker exec -it annotation-tool_web_1 pipenv run /app/manage.py migrate
+docker exec -it eyetagger_web_1 pipenv run /app/manage.py migrate
 
 # create django superuser
-docker exec -it annotation-tool_web_1 pipenv run /app/manage.py createsuperuser
+docker exec -it eyetagger_web_1 pipenv run /app/manage.py createsuperuser
 
 # access localhost:8000 in your browser
 ```
@@ -62,12 +60,12 @@ docker exec -it annotation-tool_web_1 pipenv run /app/manage.py createsuperuser
 
 Gain CLI access to app container
 
-> `docker exec -it annotation-tool_web_1 /bin/bash`
+> `docker exec -it eyetagger_web_1 /bin/bash`
 
 Gain
 
 ```sh
-docker exec -it annotation-tool_db_1 psql --username annotator_admin --dbname annotation_tool
+docker exec -it eyetagger_db_1 psql --username eyetagger_admin --dbname eyetagger
 
 # list databases
 \l

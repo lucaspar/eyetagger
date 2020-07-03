@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-# Deploy script for annotation tool
+# Manual deploy script for EyeTagger
 
 set -e
 
@@ -51,13 +51,14 @@ pipenv shell
 
 # create google bucket credentials
 mkdir -p $HOME/.gcp/
-touch $HOME/.gcp/iris-admin.json
-chmod 600 $HOME/.gcp/iris-admin.json
+GCP_AUTH_JSON=$HOME/.gcp/eyetagger.json
+touch $GCP_AUTH_JSON
+chmod 600 $GCP_AUTH_JSON
 echo -e "Paste the contents of the GCP JSON here.\nSee https://cloud.google.com/docs/authentication/getting-started"
-nano $HOME/.gcp/iris-admin.json
-chmod 400 $HOME/.gcp/iris-admin.json
-export GOOGLE_APPLICATION_CREDENTIALS="$HOME/.gcp/iris-admin.json"
-echo 'export GOOGLE_APPLICATION_CREDENTIALS="$HOME/.gcp/iris-admin.json"' >> ~/.bashrc
+nano $GCP_AUTH_JSON
+chmod 400 $GCP_AUTH_JSON
+export GOOGLE_APPLICATION_CREDENTIALS="$GCP_AUTH_JSON"
+echo 'export GOOGLE_APPLICATION_CREDENTIALS='$GCP_AUTH_JSON >> ~/.bashrc
 
 # prepare data
 dvc pull
@@ -74,7 +75,39 @@ nginx=stable # use nginx=development for latest development version
 sudo add-apt-repository -y ppa:nginx/$nginx
 sudo apt update
 sudo apt install -y nginx
-
 sudo service nginx start
 cp deploy/default /etc/nginx/sites-available/default
 sudo service nginx restart
+
+# create static files symbolic link
+VAR_EYETAGGER=/var/www/iris
+mkdir -p $VAR_EYETAGGER
+ln -s /app/dist $VAR_EYETAGGER/common
+
+# fix permissions
+chmod +x $VAR_EYETAGGER/
+chmod +x /var/www/
+sudo chgrp -R www-data $VAR_EYETAGGER/
+sudo chgrp -R www-data $VAR_EYETAGGER/
+sudo chown -R www-data: $VAR_EYETAGGER/
+
+# example of working permissions:
+#
+#   root@iris-webapp:/app# namei -l $VAR_EYETAGGER/common/static/favicon.ico
+#       f: $VAR_EYETAGGER/common/static/favicon.ico
+#       drwxr-xr-x root     root     /
+#       drwxr-xr-x root     root     var
+#       drwxrwx--x root     www-data www
+#       drwxrwsr-x www-data www-data iris
+#       lrwxrwxrwx www-data www-data common -> /app/dist
+#       drwxr-xr-x root     root       /
+#       drwxr-xr-x www-data www-data   app
+#       drwxr-xr-x www-data www-data   dist
+#       drwxr-xr-x www-data www-data static
+#       -rw-r--r-- www-data www-data favicon.ico
+
+# debugging nginx:
+# tail -n 50 /var/log/nginx/iris.error.log
+
+# debugging gunicorn:
+# sudo journalctl -u gunicorn | tail -n 50
