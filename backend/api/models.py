@@ -1,8 +1,6 @@
 from django.db import models
-# from django.conf import settings
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from django.contrib.postgres.fields import ArrayField
 
 
 class Message(models.Model):

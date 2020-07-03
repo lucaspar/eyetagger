@@ -1,4 +1,3 @@
-import traceback
 from rest_framework import permissions
 
 
