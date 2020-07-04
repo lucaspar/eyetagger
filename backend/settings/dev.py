@@ -16,16 +16,19 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import os
 import environ
 
+# build paths inside the project like this: os.path.join(BASE_DIR, ...)
+SETTINGS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(SETTINGS_DIR)
+
 # load default .env file (casting, default)
 env = environ.Env(
     DEBUG=(bool, False),
     DB_PORT=(int, 5432),
 )
-environ.Env.read_env()
-
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-SETTINGS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BASE_DIR = os.path.dirname(SETTINGS_DIR)
+dotenv_dir = os.path.join(BASE_DIR, 'env')
+for env_name in [ 'django_app.env', 'django_db.env' ]:
+    env_file = os.path.join(dotenv_dir, env_name)
+    environ.Env.read_env(env_file=env_file)
 
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env('DEBUG')

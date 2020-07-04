@@ -1,169 +1,165 @@
-# Iris Annotator
+# EyeTagger | Iris Annotation Tool
 
-![Annotator Logo](/src/assets/logo-iris.png "Iris Annotator")
+<img src="/src/assets/logo-iris.png" alt="Annotator Logo" width="300"/>
 
-Annotation tool for iris images.
+## Summary
 
-Used [this Vue + Django template](https://github.com/gtalarico/django-vue-template) as basis. Vue.js as a Single Page Application (SPA); and Django + PostgreSQL for the back-end, which communicates through a REST API with the front.
++ Dockerized application for simple deployment
++ PostgreSQL DB <=> Django + Gunicorn + Nginx web server <= REST API => Vue-based SPA + Vuex
++ Django Whitenoise to serve static files, CDN Ready
++ Annotations stored in relational database
++ Access control / user management
++ Vuex handles state management and persistance to never lose annotations on the front-end
 
-## Includes
-
-+ Django web server
-+ Django admin panel at `/api/admin/`
-+ Django REST API
-+ Django Whitenoise to serve static files, and CDN Ready
-+ Vue CLI 3 to create the front-end
-+ Vue Router for Single Page Application functionality
-+ Vuex for state management and persistance to never lose annotations
-+ Gunicorn - WSGI / translates HTTP requests into Python commands
-+ Configuration for Heroku Deployment
-
-## 1. Execution
+## 1. Getting Started
 
 ### 1.1. Dependencies
 
 Before getting started you should have the following installed and running:
 
-+ Yarn - [instructions](https://yarnpkg.com/en/docs/install)
-+ Vue CLI 3 - [instructions](https://cli.vuejs.org/guide/installation.html)
-+ Python 3 - [instructions](https://wiki.python.org/moin/BeginnersGuide)
-+ Pipenv - [instructions](https://pipenv.readthedocs.io/en/latest/install/#installing-pipenv)
-+ PostgreSQL - [instructions](https://www.postgresql.org/download/)
++ Docker >= v19
++ Docker Compose >= v1.25
 
-### 1.2. Setup Template
+### 1.2. Link data
+
+To pass the images you want to be served with the EyeTagger, open `docker-compose.yaml` and edit the volume entries commented with `dataset`. Set their `source` fields to point to the directory containing the images.
+
+To make things easier when deploying remotely, you can [make use of `dvc`](https://dvc.org/) on your dataset and run commands such as `dvc push` and `dvc pull` to sync the data between a number of machines and a remote (e.g. AWS S3, Google Cloud Storage); similarly to what `git` does with source code.
+
+### 1.3. Setup Template
 
 #### Install Packages
 
 ```sh
-yarn install
-pipenv install --dev && pipenv shell
+# create the public network
+docker network create net-nginx-proxy
+
+# build docker images and run containers
+docker-compose up
+
+# from another terminal, run the database migrations
+docker exec -it eyetagger_web_1 pipenv run /app/manage.py migrate
+
+# create django superuser
+docker exec -it eyetagger_web_1 pipenv run /app/manage.py createsuperuser
+
+# access localhost:8000 in your browser
 ```
 
-#### Database
+---
+
+## 2. Management
+
+### 2.1 CLI access to services
+
+#### Django + Vue container
+
+> `docker exec -it eyetagger_web_1 /bin/bash`
+
+#### Nginx container
+
+> `docker exec -it eyetagger_nginx_1 /bin/sh`
+
+#### PostgreSQL container
+
+> `docker exec -it eyetagger_db_1 psql --username eyetagger_admin --dbname eyetagger`
+
+More PostgreSQL commands:
 
 ```sh
-# create a symbolic link for your image dataset
-ln -s /your/dataset/location    backend/dataset
-
-# make sue PostgreSQL is running to store the annotations
-service postgresql status
-
-# database setup
-sudo -u postgres psql
-# an iteractive shell will open, then adapt and run the following commands:
-
-# create database and user:
-#=#     CREATE DATABASE annotation_tool;
-#=#     CREATE USER annotator_admin WITH PASSWORD 'my_ultra_secure_db_password';
-
-# adjust settings:
-#=#     ALTER ROLE annotator_admin SET client_encoding TO 'utf8';
-#=#     ALTER ROLE annotator_admin SET default_transaction_isolation TO 'read committed';
-#=#     ALTER ROLE annotator_admin SET timezone TO 'UTC';
-#           or America/Indiana/Indianapolis
-
-# configure access control and quit
-#=#     GRANT ALL PRIVILEGES ON DATABASE annotation_tool TO annotator_admin;
-#=#     \q
-
-# run database migrations
-python manage.py migrate
-```
-
-### 1.3. Running Development Servers
-
-#### Back-end
-
-```sh
-python manage.py runserver
-# served from localhost:8000
-```
-
-#### Front-end
-
-```sh
-yarn serve
-# open http://localhost:8080
-```
-
-Proxy config in [`vue.config.js`](/vue.config.js) is used to route the requests
-back to django's API on port 8000.
-
-## 2. Deploy
-
-1. Independent of the deploy method, you need to set the correct environment for the back and front-end by changing the configuration files in `/backend` and the `vue.config.js`.
-2. Set `ALLOWED_HOSTS` on [`backend.settings.prod`](/backend/settings/prod.py)
-3. Follow the [Django deployment checklist](https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/) to make sure everything will work as expected from the back-end, changing the `.env` file as needed.
-
-### 2.1 Local Deploy
-
-After doing the changes above, follow the steps in [Running Development Servers](#1.3.%20Running%20Development%20Servers).
-
-### 2.2 AWS Deploy
-
-You can choose the topology you are most comfortable with:
-
-Setting | Comment
---- | ---
-EC2 single instance | recommended only for low and local traffic
-EC2 Django + EC2 PostgreSQL + S3 for static files | good throughput
-EC2 Django + EC2 PostgreSQL + CloudFront for static files | good throughput + locality
-EC2 Django + RDS PostgreSQL + CloudFront for static files | highly scalable
-
-As a Heroku alternative on AWS, check AWS Elastic Beanstalk.
-
-### 2.3 Heroku Deploy
-
-```sh
-heroku apps:create iris-annotator
-heroku git:remote --app iris-annotator
-heroku buildpacks:add --index 1 heroku/nodejs
-heroku buildpacks:add --index 2 heroku/python
-heroku addons:create heroku-postgresql:hobby-dev
-heroku config:set DJANGO_SETTINGS_MODULE=backend.settings.prod
-heroku config:set DJANGO_SECRET_KEY='< your django SECRET_KEY value >'
-
-git push heroku
-```
-
-Heroku's nodejs buildpack will handle install for all the dependencies from the [`package.json`](/package.json) file. It will then trigger the `postinstall` command which calls `yarn build`. This will create the bundled `dist` folder which will be served by whitenoise. The python buildpack will detect the [`Pipfile`](/Pipfile) and install all the Python dependencies. The [`Procfile`](/Procfile) will run Django migrations and then launch Django's app using Gunicorn, as recommended by Heroku.
-
-## 3. Management
-
-### 3.1 CLI
-
-```sh
-./manage.py dbshell
-
-# list databases
-\l
-
-# list tables
-\d
-
-# describe a table
-\d api_annotation
+\h  # help
+\q  # quit
+\l  # list databases
+\d  # list tables / relations
+\d api_annotation   # describe a table / relation
 
 # run a query - don't forget the semicolon:
 SELECT id, annotator_id, image_id FROM api_annotation;
-
 ```
 
-### 3.2 Dashboards
+### 2.2 Dashboards
 
 Feature | Default location | Comment
 ------- | ---------------- | -------
-Django REST Framework | http://localhost:8000/api | Only available in development (_i.e._ `DEBUG=True`)
-Django Administration Panel | http://localhost:8000/api/admin | Credentials created with `python manage.py createsuperuser`
+Django REST Framework | http://localhost/api | Only available in development (_i.e._ `DEBUG=True` in `env/django_app.env`)
+Django Administration Panel | http://localhost/api/admin | Credentials created with `pipenv run ./manage.py createsuperuser`
 
-### 3.3 Template Structure
+### 2.3 Template Structure
 
-| Location             |  Content                                   |
-|----------------------|--------------------------------------------|
-| `/backend`           | Django Project & Backend Config            |
-| `/backend/api`       | Django App (`/api`)                        |
-| `/src`               | Vue App .                                  |
-| `/src/main.js`       | JS Application Entry Point                 |
-| `/public/index.html` | HTML Application Entry Point (`/`)         |
-| `/public/static`     | Static Assets                              |
-| `/dist/`             | Bundled Assets Output (generated at `yarn build`) |
+| Location from project root    | Contents                                  |
+| ----------------------------- | ----------------------------------------- |
+| `backend/`                    | Django Project & Backend Config           |
+| `backend/api/`                | Django App for REST `api`                 |
+| `data/`                       | Git-ignored: DB + backups                 |
+| `deploy/`                     | Scripts and configuration files           |
+| `dist/`                       | Git-ignored: back+front generated files   |
+| `env/`                        | Environment Files                         |
+| `public/`                     | Static Assets                             |
+| `src/`                        | Vue App                                   |
+
+### 2.4 Database
+
+#### A. Backing up a DB (dump)
+
+To run it once:
+
+```sh
+# docker-compose up db          # if db container is not running
+docker exec eyetagger_db_1 pg_dump -U eyetagger_admin eyetagger | \
+    gzip > eyetagger_bkp_$(date +"%Y_%m_%d_%I_%M_%p").sql.gz
+```
+
+Check [backups.sh](./backups.sh) for a simple automated version.
+
+> Tip: you can add the existing `backups.sh` to your `crontab -e` for periodic backups:
+
+    To run it every 6 hours:
+    0 */6 * * * /eyetagger/backup.sh
+
+    Or every business day (Mon-Fri) at 6pm:
+    0 18 * * 1-5 /eyetagger/backup.sh
+
+
+#### B. Restoring a Backup
+
+```sh
+# replace $YOUR_DUMP_GZ by your .gz location:
+
+# let's copy the backup before moving/modifying it
+cp $YOUR_DUMP_GZ /tmp/dump.sql.gz
+
+# extract the dump
+gunzip -k /tmp/dump.sql.gz
+
+# copy to the running DB container
+# docker-compose up db          # if db container is not running
+docker cp /tmp/dump.sql eyetagger_db_1:/dump.sql
+
+# create a new empty database
+docker exec eyetagger_db_1 createdb -U eyetagger_admin -T template0 eyetagger_new
+
+# populate the empty database with the dump
+docker exec eyetagger_db_1 psql -U eyetagger_admin -d eyetagger_new -f /dump.sql
+
+# swap database names
+docker exec -it eyetagger_db_1 psql --username eyetagger_admin --dbname postgres
+\l
+ALTER DATABASE eyetagger RENAME TO eyetagger_old;
+ALTER DATABASE eyetagger_new RENAME TO eyetagger;
+\l
+\q
+
+# get the other services up and try it out!
+docker-compose down && docker-compose up
+
+# if successful, clean the temporary backup copies
+rm      /tmp/dump.sql.gz     /tmp/dump.sql
+```
+
+## 3. Production Deploy
+
+1. Adapt the environment files for the backend in `env/`.
+2. Adapt the environment file for the frontend in `vue.config.js`.
+3. Configure `ALLOWED_HOSTS` in [`backend.settings.prod`](/backend/settings/prod.py)
+4. Follow the [Django deployment checklist](https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/) for further configuration.
+5. Deploy the dockerized application in a remote server by running it in daemon form: `docker-compose up -d`.

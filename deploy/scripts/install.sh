@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-# Deploy script for annotation tool
+# Manual deploy script for EyeTagger
 
 set -e
 
@@ -15,18 +15,12 @@ echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/source
 sudo apt update && sudo apt install -y yarn
 
 # install pipenv
-sudo apt purge -y python-pip            # remove pip for python2
+sudo apt purge -y python-pip
 sudo apt install -y python3 python3-pip
+sudo apt install -y python3.8 python3.8-dev python3.8-distutils python3.8-venv
 pip install --upgrade pip
 pip install pipenv
 sudo ln -s $(which pip3) /usr/bin/pip
-
-# install project dependencies
-yarn install
-pipenv install
-
-# build front-end files
-yarn build
 
 # install postgres
 echo "deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main" | sudo tee -a /etc/apt/sources.list.d/pgdg.list
@@ -41,13 +35,17 @@ cd /tmp
 sudo -u postgres psql
 cd ~/app
 
+# install project dependencies
+yarn install
+pipenv install
+
 # create dotenv
 cp backend/settings/.env.example backend/settings/.env
 nano backend/settings/.env
 
-# build back-end files
-pipenv shell
-./manage.py collectstatic
+# build static files
+yarn build
+pipenv run ./manage.py collectstatic
 
 # create google bucket credentials
 mkdir -p $HOME/.gcp/
@@ -59,22 +57,9 @@ chmod 400 $HOME/.gcp/iris-admin.json
 export GOOGLE_APPLICATION_CREDENTIALS="$HOME/.gcp/iris-admin.json"
 echo 'export GOOGLE_APPLICATION_CREDENTIALS="$HOME/.gcp/iris-admin.json"' >> ~/.bashrc
 
-# prepare data
-dvc pull
+# pull data and create symlink
+pipenv run dvc pull
 ln -s $(pwd)/backend/dataset $(pwd)/dist/static/data
 
-# migrate database
-./manage.py migrate
-
-# copy gunicorn configuration
-cp deploy/gunicorn.service /etc/systemd/system/gunicorn.service
-
-# replace nginx configuration
-nginx=stable # use nginx=development for latest development version
-sudo add-apt-repository -y ppa:nginx/$nginx
-sudo apt update
-sudo apt install -y nginx
-
-sudo service nginx start
-cp deploy/default /etc/nginx/sites-available/default
-sudo service nginx restart
+# update deployed application
+./update_deploy.sh

@@ -1,4 +1,3 @@
-import traceback
 from rest_framework import permissions
 
 
@@ -26,4 +25,3 @@ class IsAnnotatorOwnerOrStaff(permissions.BasePermission):
             print("Failed to check object's annotator user. Denying request.")
 
         return False
-
