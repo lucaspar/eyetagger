@@ -1,16 +1,39 @@
-# NGINX DEVELOPMENT SERVER
+# NGINX PRODUCTION SERVER
 
 # proxy to django container
 upstream eyetagger {
     server web:8000;
 }
 
-# serve app
+# redirect http to https
 server {
 
     listen 80;
-    server_name localhost;
+    server_name iris.devincive.com;
+    location / {
+        if ($http_x_forwarded_proto = "http") {
+            return 301 https://$server_name$request_uri;
+        }
+        try_files $uri $uri/ =404;
+    }
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+}
+
+# serve app
+server {
+
+    # listen 80;
+    listen 443 ssl;
+    server_name iris.devincive.com;
     autoindex on;
+
+    ssl_certificate /etc/letsencrypt/live/iris.devincive.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/iris.devincive.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
     # logs
     access_log /var/log/nginx/eyetagger.access.log;

@@ -58,14 +58,14 @@ services:
           - net-nginx-proxy
           - net-iris
 
-    certbot:
-        image: certbot/certbot
-        entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-        networks:
-          - net-nginx-proxy
-        volumes:
-          - ./deploy/certbot/conf:/etc/letsencrypt
-          - ./deploy/certbot/www:/var/www/certbot
+    # certbot:
+    #     image: certbot/certbot
+    #     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    #     networks:
+    #       - net-nginx-proxy
+    #     volumes:
+    #       - ./deploy/certbot/conf:/etc/letsencrypt
+    #       - ./deploy/certbot/www:/var/www/certbot
 
     nginx:
         image: nginx:1.19.0-alpine
@@ -80,8 +80,8 @@ services:
           - net-nginx-proxy
         volumes:
           - ./deploy/nginx:/etc/nginx/conf.d
-          - ./deploy/certbot/conf:/etc/letsencrypt
-          - ./deploy/certbot/www:/var/www/certbot
+          # - ./deploy/certbot/conf:/etc/letsencrypt
+          # - ./deploy/certbot/www:/var/www/certbot
 
 networks:
     net-nginx-proxy:
