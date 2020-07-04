@@ -41,12 +41,12 @@ services:
             read_only: false
           # dataset - web app access
           - type: bind
-            source: ./backend/dataset
+            source: ./data/dataset
             target: /app/backend/dataset
             read_only: false
           # dataset - guest access
           - type: bind
-            source: ./backend/dataset
+            source: ./data/dataset
             target: /app/dist/static/data
             read_only: false
         ports:
