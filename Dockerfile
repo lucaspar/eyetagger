@@ -64,7 +64,8 @@ COPY . .
 
 # build static files
 RUN pipenv run ./manage.py collectstatic --no-input
-RUN yarn build
+RUN yarn upgrade
+RUN yarn build --no-clean
 
 # run new migrations and serve app
 CMD pipenv run ./manage.py makemigrations && \
