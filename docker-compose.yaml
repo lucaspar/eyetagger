@@ -16,19 +16,19 @@ services:
     web:
         build: .
         # DEVELOPMENT:
-        command: >
-            bash -c "
-                pipenv run python manage.py migrate &&
-                pipenv run python manage.py runserver 0.0.0.0:8000 &
-                yarn serve"
-        # PRODUCTION:
         # command: >
         #     bash -c "
-        #         yarn build --no-clean &&
-        #         pipenv run ./manage.py collectstatic --no-input &&
-        #         pipenv run ./manage.py migrate &&
-        #         pipenv run gunicorn --log-level debug --access-logfile - \
-        #           --workers 3 --bind 0.0.0.0:8000 backend.wsgi:application"
+        #         pipenv run python manage.py migrate &&
+        #         pipenv run python manage.py runserver 0.0.0.0:8000 &
+        #         yarn serve"
+        # PRODUCTION:
+        command: >
+            bash -c "
+                yarn build --no-clean &&
+                pipenv run ./manage.py collectstatic --no-input &&
+                pipenv run ./manage.py migrate &&
+                pipenv run gunicorn --log-level debug --access-logfile - \
+                  --workers 3 --bind 0.0.0.0:8000 backend.wsgi:application"
         restart: always
         env_file:
           - env/django_db.env
@@ -58,15 +58,30 @@ services:
           - net-nginx-proxy
           - net-iris
 
+    certbot:
+        image: certbot/certbot
+        entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+        networks:
+          - net-nginx-proxy
+        volumes:
+          - ./deploy/certbot/conf:/etc/letsencrypt
+          - ./deploy/certbot/www:/var/www/certbot
+
     nginx:
-        build: ./deploy/nginx
+        image: nginx:1.19.0-alpine
         restart: always
+        command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
         ports:
           - 80:80
+          - 443:443
         depends_on:
           - web
         networks:
           - net-nginx-proxy
+        volumes:
+          - ./deploy/nginx:/etc/nginx/conf.d
+          - ./deploy/certbot/conf:/etc/letsencrypt
+          - ./deploy/certbot/www:/var/www/certbot
 
 networks:
     net-nginx-proxy:
