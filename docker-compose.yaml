@@ -15,8 +15,20 @@ services:
 
     web:
         build: .
-        # command: pipenv run python manage.py runserver 0.0.0.0:8000
-        command: pipenv run gunicorn --log-level debug --access-logfile - --workers 3 --bind 0.0.0.0:8000 backend.wsgi:application
+        # DEVELOPMENT:
+        command: >
+            bash -c "
+                pipenv run python manage.py migrate &&
+                pipenv run python manage.py runserver 0.0.0.0:8000 &
+                yarn serve"
+        # PRODUCTION:
+        # command: >
+        #     bash -c "
+        #         yarn build --no-clean &&
+        #         pipenv run ./manage.py collectstatic --no-input &&
+        #         pipenv run ./manage.py migrate &&
+        #         pipenv run gunicorn --log-level debug --access-logfile -
+        #           --workers 3 --bind 0.0.0.0:8000 backend.wsgi:application"
         restart: always
         env_file:
           - env/django_db.env
@@ -39,6 +51,7 @@ services:
             read_only: false
         ports:
           - "8000:8000"
+          - "9000:9000"
         depends_on:
           - db
         networks:

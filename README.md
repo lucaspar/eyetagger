@@ -38,10 +38,10 @@ docker network create net-nginx-proxy
 docker-compose up
 
 # from another terminal, run the database migrations
-docker exec -it eyetagger_web_1 pipenv run /app/manage.py migrate
+docker-compose exec web pipenv run /app/manage.py migrate
 
 # create django superuser
-docker exec -it eyetagger_web_1 pipenv run /app/manage.py createsuperuser
+docker-compose exec web pipenv run /app/manage.py createsuperuser
 
 # access localhost:8000 in your browser
 ```
@@ -54,15 +54,15 @@ docker exec -it eyetagger_web_1 pipenv run /app/manage.py createsuperuser
 
 #### Django + Vue container
 
-> `docker exec -it eyetagger_web_1 /bin/bash`
+> `docker-compose exec web /bin/bash`
 
 #### Nginx container
 
-> `docker exec -it eyetagger_nginx_1 /bin/sh`
+> `docker-compose exec nginx /bin/sh`
 
 #### PostgreSQL container
 
-> `docker exec -it eyetagger_db_1 psql --username eyetagger_admin --dbname eyetagger`
+> `docker-compose exec db psql --username eyetagger_admin --dbname eyetagger`
 
 More PostgreSQL commands:
 
@@ -105,7 +105,7 @@ To run it once:
 
 ```sh
 # docker-compose up db          # if db container is not running
-docker exec eyetagger_db_1 pg_dump -U eyetagger_admin eyetagger | \
+docker-compose exec db pg_dump -U eyetagger_admin eyetagger | \
     gzip > eyetagger_bkp_$(date +"%Y_%m_%d_%I_%M_%p").sql.gz
 ```
 
@@ -136,13 +136,13 @@ gunzip -k /tmp/dump.sql.gz
 docker cp /tmp/dump.sql eyetagger_db_1:/dump.sql
 
 # create a new empty database
-docker exec eyetagger_db_1 createdb -U eyetagger_admin -T template0 eyetagger_new
+docker-compose exec db createdb -U eyetagger_admin -T template0 eyetagger_new
 
 # populate the empty database with the dump
-docker exec eyetagger_db_1 psql -U eyetagger_admin -d eyetagger_new -f /dump.sql
+docker-compose exec db psql -U eyetagger_admin -d eyetagger_new -f /dump.sql
 
 # swap database names
-docker exec -it eyetagger_db_1 psql --username eyetagger_admin --dbname postgres
+docker-compose exec db psql --username eyetagger_admin --dbname postgres
 \l
 ALTER DATABASE eyetagger RENAME TO eyetagger_old;
 ALTER DATABASE eyetagger_new RENAME TO eyetagger;
@@ -156,7 +156,15 @@ docker-compose down && docker-compose up
 rm      /tmp/dump.sql.gz     /tmp/dump.sql
 ```
 
-## 3. Production Deploy
+## 3. Development
+
+1. Run Vue development server
+
+    > `docker-compose exec web yarn serve`
+
+2. Open `localhost:8080`
+
+## 4. Production Deploy
 
 1. Adapt the environment files for the backend in `env/`.
 2. Adapt the environment file for the frontend in `vue.config.js`.
