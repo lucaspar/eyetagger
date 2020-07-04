@@ -4,10 +4,12 @@ services:
 
     db:
         image: postgres:13
+        restart: always
         env_file:
           - env/django_db.env
         volumes:
           - ./deploy/db_creation.sh:/docker-entrypoint-initdb.d/init.sh
+          - ./data/postgres:/var/lib/postgresql/data
         networks:
           - net-iris
 
@@ -15,6 +17,7 @@ services:
         build: .
         # command: pipenv run python manage.py runserver 0.0.0.0:8000
         command: pipenv run gunicorn --log-level debug --access-logfile - --workers 3 --bind 0.0.0.0:8000 backend.wsgi:application
+        restart: always
         env_file:
           - env/django_db.env
           - env/django_app.env
@@ -28,12 +31,12 @@ services:
           - type: bind
             source: ./backend/dataset
             target: /app/backend/dataset
-            read_only: true
+            read_only: false
           # dataset - guest access
           - type: bind
             source: ./backend/dataset
             target: /app/dist/static/data
-            read_only: true
+            read_only: false
         ports:
           - "8000:8000"
         depends_on:
@@ -44,6 +47,7 @@ services:
 
     nginx:
         build: ./deploy/nginx
+        restart: always
         ports:
           - 80:80
         depends_on:

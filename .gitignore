@@ -1,5 +1,6 @@
-/dist
-/venv
+/dist/
+/venv/
+data/*
 .DS_Store
 db.sqlite3
 __pycache__
@@ -19,3 +20,6 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw*
+
+# keep
+!.gitkeep
