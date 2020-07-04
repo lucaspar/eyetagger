@@ -1,6 +1,16 @@
 <template>
-    <div ref='cnv' class="cnv section columns is-multiline" @keyup.left="prev_image" @keyup.81="prev_image" @keyup.right="next_image" @keyup.69="next_image">
-        <div v-if="img_id_short" class="image_id">
+    <div
+        ref='cnv'
+        class="cnv section columns is-multiline"
+        @keyup.left="prev_image"
+        @keyup.81="prev_image"
+        @keyup.right="next_image"
+        @keyup.69="next_image"
+    >
+        <div
+            v-if="img_id_short"
+            class="image_id"
+        >
             <small>ID: {{ img_id_short }}</small>
         </div>
         <div class="center column is-full">
@@ -9,22 +19,58 @@
         <div class="column is-full">
             <div class="columns is-multiline is-centered">
                 <div class="column">
-                    <canvas id="vis-canvas" ref="vis-canvas"/>
+                    <h5 class="title is-5 has-text-centered">Reference image</h5>
+                    <canvas
+                        id="vis-canvas"
+                        ref="vis-canvas"
+                    />
                 </div>
                 <div class="column">
-                    <canvas id="main-canvas" ref="main-canvas"/>
+                    <h5 class="title is-5 has-text-centered">Annotation canvas</h5>
+                    <canvas
+                        id="main-canvas"
+                        ref="main-canvas"
+                    />
                 </div>
-                <div class="column is-2" id="control-panel">
+                <div
+                    class="column is-2"
+                    id="control-panel"
+                >
                     <div class="columns is-multiline">
-                        <div class="column is-6"><button class="button is-info" id="btn-previous"   @click="prev_image"> <b-icon pack="fas" icon="chevron-left">     </b-icon> <span>Previous</span> </button>   </div>
-                        <div class="column is-6"><button class="button is-info" id="btn-next"       @click="next_image"> <b-icon pack="fas" icon="chevron-right">    </b-icon> <span>Next</span>     </button>   </div>
+                        <div class="column is-6"><button
+                                class="button is-info"
+                                id="btn-previous"
+                                @click="prev_image"
+                            >
+                                <b-icon
+                                    pack="fas"
+                                    icon="chevron-left"
+                                > </b-icon> <span>Previous</span>
+                            </button> </div>
+                        <div class="column is-6"><button
+                                class="button is-info"
+                                id="btn-next"
+                                @click="next_image"
+                            >
+                                <b-icon
+                                    pack="fas"
+                                    icon="chevron-right"
+                                > </b-icon> <span>Next</span>
+                            </button> </div>
                         <!-- <div class="column is-6"><button class="button is-info" id="btn-undo">       <b-icon pack="fas" icon="undo">        </b-icon> <span>Undo (Z)</span>     </button>   </div>
                         <div class="column is-6"><button class="button is-info" id="btn-redo">       <b-icon pack="fas" icon="redo">        </b-icon> <span>Redo (X)</span>     </button>   </div> -->
                         <!-- <div class="column is-6 is-offset-3"><button class="button is-info" id="btn-brush"> <b-icon pack="fas" icon="brush">       </b-icon> <span>Brush</span>    </button>   </div> -->
                         <div class="column is-6 is-offset-3">
                             <hr>
-                            <button class="button is-success" id="btn-sync" @click="post_annotations">
-                                <b-icon pack="fas" icon="sync"></b-icon>
+                            <button
+                                class="button is-success"
+                                id="btn-sync"
+                                @click="post_annotations"
+                            >
+                                <b-icon
+                                    pack="fas"
+                                    icon="sync"
+                                ></b-icon>
                                 <span>Sync</span>
                             </button>
                         </div>
@@ -34,24 +80,45 @@
                             <span>Brush size</span>
                             <div class="columns">
                                 <div class="column">
-                                    <button class="button is-info" id="btn-brush-dec" @click="canvas_brush_dec">
-                                        <b-icon pack="fas" icon="minus"></b-icon>
+                                    <button
+                                        class="button is-info"
+                                        id="btn-brush-dec"
+                                        @click="canvas_brush_dec"
+                                    >
+                                        <b-icon
+                                            pack="fas"
+                                            icon="minus"
+                                        ></b-icon>
                                     </button>
                                 </div>
                                 <div class="column">
                                     {{ this.brush_size }}
                                 </div>
                                 <div class="column">
-                                    <button class="button is-info" id="btn-brush-inc" @click="canvas_brush_inc">
-                                        <b-icon pack="fas" icon="plus"></b-icon>
+                                    <button
+                                        class="button is-info"
+                                        id="btn-brush-inc"
+                                        @click="canvas_brush_inc"
+                                    >
+                                        <b-icon
+                                            pack="fas"
+                                            icon="plus"
+                                        ></b-icon>
                                     </button>
                                 </div>
                             </div>
                         </div>
                         <div class="column is-6 is-offset-3">
                             <hr>
-                            <button class="button is-danger" id="btn-eraser" @click="canvas_clear">
-                                <b-icon pack="fas" icon="eraser"></b-icon>
+                            <button
+                                class="button is-danger"
+                                id="btn-eraser"
+                                @click="canvas_clear"
+                            >
+                                <b-icon
+                                    pack="fas"
+                                    icon="eraser"
+                                ></b-icon>
                                 <span>Clear canvas</span>
                             </button>
                         </div>
@@ -59,7 +126,11 @@
                     </div>
                 </div>
                 <div class="column hidden">
-                    <canvas class="hidden" id="export-canvas" ref="export-canvas"></canvas>
+                    <canvas
+                        class="hidden"
+                        id="export-canvas"
+                        ref="export-canvas"
+                    ></canvas>
                 </div>
             </div>
         </div>
@@ -118,7 +189,7 @@ export default {
             this.canvas.main_canvas.freeDrawingBrush.width = this.brush_size * 5;
         },
 
-        prev_image: function() {
+        prev_image: function () {
             let next_action = 'images/decSeqCounter'
             if (this.sequential_counter == undefined || this.sequential_counter <= 0) {
                 next_action = undefined
@@ -126,7 +197,7 @@ export default {
             this.export_annotation(next_action)
         },
 
-        next_image: function() {
+        next_image: function () {
             if (this.sequential_counter == undefined) {
                 return
             }
@@ -138,17 +209,17 @@ export default {
             this.export_annotation(next_action)
         },
 
-        post_annotations: function() {
+        post_annotations: function () {
             this.$store.dispatch('images/postAnnotations')
         },
 
-        canvas_clear: function() {
-            this.canvas.main_canvas.getObjects().map( o => {
+        canvas_clear: function () {
+            this.canvas.main_canvas.getObjects().map(o => {
                 this.canvas.main_canvas.remove(o)
             })
         },
 
-        export_annotation: function(next_action) {
+        export_annotation: function (next_action) {
 
             // other useful methods:
             // console.log(this.canvas.main_canvas.toSVG())
@@ -167,10 +238,10 @@ export default {
             this.canvas.export_canvas.renderAll()
 
             // convert canvas to image
-            this.$refs['export-canvas'].toBlob( blob => {
+            this.$refs['export-canvas'].toBlob(blob => {
 
                 // now objects can be removed from export canvas
-                this.canvas.export_canvas.getObjects().map( o => {
+                this.canvas.export_canvas.getObjects().map(o => {
                     this.canvas.export_canvas.remove(o)
                 })
 
@@ -199,7 +270,7 @@ export default {
 
         },
 
-        update_canvas_image: function() {
+        update_canvas_image: function () {
 
             // need both counter and list of images to update canvas image
             if (this.sequential_counter == undefined ||
@@ -211,7 +282,7 @@ export default {
             this.$store.dispatch('images/setCanvasImage', canvas_image)
         },
 
-        update_canvas_display: function() {
+        update_canvas_display: function () {
 
             // if there's no image to show, there's nothing else to do
             if (this.canvas_image == undefined || !this.canvas_image.img_id) {
@@ -263,7 +334,7 @@ export default {
                 this.canvas.main_canvas.renderAll();
 
                 // prepare export canvas
-                this.canvas.export_canvas.setDimensions({width: this.image.naturalWidth, height: this.image.naturalHeight })
+                this.canvas.export_canvas.setDimensions({ width: this.image.naturalWidth, height: this.image.naturalHeight })
 
                 // set brush properties
                 this.canvas.main_canvas.freeDrawingBrush.width = this.brush_size * 5
@@ -278,7 +349,7 @@ export default {
                 this.canvas.main_canvas.remove(this.paths_group)
 
                 // select all objects for re-grouping
-                const objs = this.canvas.main_canvas.getObjects().map( o => o.set('active', true) )
+                const objs = this.canvas.main_canvas.getObjects().map(o => o.set('active', true))
                 this.paths_group = new fabric.Group(objs, {
                     originX: 'center',
                     originY: 'center',
@@ -341,7 +412,7 @@ export default {
     border-radius: 0.5em;
 }
 .image_id {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: "Courier New", Courier, monospace;
     text-align: right;
     position: absolute;
     font-size: 9pt;

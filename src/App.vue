@@ -2,13 +2,13 @@
     <div class="section" id="app">
         <b-navbar>
             <template slot="start">
-                <h1 class="title is-2">Iris Annotation Tool</h1>
+                <h1 class="title is-2">EyeTagger</h1>
             </template>
             <template slot="end">
                 <b-navbar-item><router-link :to="{ name: 'home' }">
                     Home
                 </router-link></b-navbar-item>
-                <b-navbar-item><router-link :to="{ name: 'annotation' }">
+                <b-navbar-item v-if="is_authenticated"><router-link :to="{ name: 'annotation' }">
                     Annotation Demo
                 </router-link></b-navbar-item>
                 <!-- <b-navbar-item><router-link :to="{ name: 'visualization' }">
