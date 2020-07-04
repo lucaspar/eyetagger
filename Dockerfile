@@ -71,22 +71,3 @@ RUN yarn build --no-clean
 CMD pipenv run ./manage.py makemigrations && \
     pipenv run ./manage.py migrate && \
     pipenv run ./manage.py runserver 0.0.0.0:8000
-
-# MANUAL STEPS:
-
-# create dotenv
-# COPY backend/settings/.env.example backend/settings/.env
-
-# create google bucket credentials [ adapt to run on host and mount as docker volume ]
-# mkdir -p $HOME/.gcp/
-# touch $HOME/.gcp/iris-admin.json
-# chmod 600 $HOME/.gcp/iris-admin.json
-# echo -e "Paste the contents of the GCP JSON here.\nSee https://cloud.google.com/docs/authentication/getting-started"
-# nano $HOME/.gcp/iris-admin.json
-# chmod 400 $HOME/.gcp/iris-admin.json
-# export GOOGLE_APPLICATION_CREDENTIALS="$HOME/.gcp/iris-admin.json"
-# echo 'export GOOGLE_APPLICATION_CREDENTIALS="$HOME/.gcp/iris-admin.json"' >> ~/.bashrc
-
-# prepare data [ adapt to be mounted as a volume ]
-# dvc pull
-# ln -s $(pwd)/backend/dataset $(pwd)/dist/static/data

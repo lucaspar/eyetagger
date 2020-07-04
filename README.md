@@ -22,11 +22,30 @@ Before getting started you should have the following installed and running:
 
 ### 1.2. Link data
 
-To pass the images you want to be served with the EyeTagger, open `docker-compose.yaml` and edit the volume entries commented with `dataset`. Set their `source` fields to point to the directory containing the images.
+Data upload via web interface if not possible yet, so the data needs to be mounted inside the container.
 
-To make things easier when deploying remotely, you can [make use of `dvc`](https://dvc.org/) on your dataset and run commands such as `dvc push` and `dvc pull` to sync the data between a number of machines and a remote (e.g. AWS S3, Google Cloud Storage); similarly to what `git` does with source code.
+If you have the images in the same machine, just put them in the expected location `data/dataset/` by creating a symbolic link (below) or just moving your data.
 
-### 1.3. Setup Template
+> `ln -s    $MY_DATASET_LOCATION    $(pwd)/data/dataset`
+
+If your dataset is remote (cloud or another computer), you might want to start using `dvc`. Check the [Integrating DVC](#5.-integrating-dvc) session below.
+
+### 1.3 Create environment
+
+```sh
+# copy all example dotenv files
+sudo apt install mmv
+mmv 'env/*.env.example' 'env/#1.env'
+
+# edit all env/*.env files setting the following:
+#    DJANGO_STATIC_HOST
+#    SECRET_KEY
+#    DB_PASS
+#    POSTGRES_PASSWORD (same as DB_PASS)
+find env -name "*.env" -exec nano {} \;
+```
+
+### 1.4. Run services
 
 #### Install Packages
 
@@ -43,7 +62,7 @@ docker-compose exec web pipenv run /app/manage.py migrate
 # create django superuser
 docker-compose exec web pipenv run /app/manage.py createsuperuser
 
-# access localhost:8000 in your browser
+# access localhost:80 in your browser
 ```
 
 ---
@@ -81,7 +100,7 @@ SELECT id, annotator_id, image_id FROM api_annotation;
 
 Feature | Default location | Comment
 ------- | ---------------- | -------
-Django REST Framework | http://localhost/api | Only available in development (_i.e._ `DEBUG=True` in `env/django_app.env`)
+Django REST Framework | http://localhost/api | Only available in development mode (_i.e._ `DEBUG=True` in `env/django_app.env`)
 Django Administration Panel | http://localhost/api/admin | Credentials created with `pipenv run ./manage.py createsuperuser`
 
 ### 2.3 Template Structure
@@ -113,11 +132,13 @@ Check [backups.sh](./backups.sh) for a simple automated version.
 
 > Tip: you can add the existing `backups.sh` to your `crontab -e` for periodic backups:
 
-    To run it every 6 hours:
-    0 */6 * * * /eyetagger/backup.sh
+```txt
+To run it every 6 hours:
+0 */6 * * * /eyetagger/backup.sh
 
-    Or every business day (Mon-Fri) at 6pm:
-    0 18 * * 1-5 /eyetagger/backup.sh
+Or every business day (Mon-Fri) at 6pm:
+0 18 * * 1-5 /eyetagger/backup.sh
+```
 
 
 #### B. Restoring a Backup
@@ -158,11 +179,9 @@ rm      /tmp/dump.sql.gz     /tmp/dump.sql
 
 ## 3. Development
 
-1. Run Vue development server
+1. There are 2 entries `command` under `docker-compose.yaml` > Service `web`. Select the "development" one by commenting our the other.
 
-    > `docker-compose exec web yarn serve`
-
-2. Open `localhost:8080`
+2. Run `docker-compose up` (run `down` first if already up) and open `localhost:9000`. Hot reload should be enabled i.e. live changes to the front-end code will update the browser.
 
 ## 4. Production Deploy
 
@@ -171,3 +190,37 @@ rm      /tmp/dump.sql.gz     /tmp/dump.sql
 3. Configure `ALLOWED_HOSTS` in [`backend.settings.prod`](/backend/settings/prod.py)
 4. Follow the [Django deployment checklist](https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/) for further configuration.
 5. Deploy the dockerized application in a remote server by running it in daemon form: `docker-compose up -d`.
+
+## 5. Integrating DVC
+
+1. Install dvc on host
+
+    > `pip install dvc`
+
+2. Setup access (using a GCP below)
+
+    ```sh
+    # get provider-specific api
+    pip install 'dvc[gs]'
+
+    # create google bucket credentials
+    mkdir -p $HOME/.gcp/
+    GOOGLE_APPLICATION_CREDENTIALS=$HOME/.gcp/iris-admin.json
+
+    # paste the contents of the GCP JSON in this file
+    # see https://cloud.google.com/docs/authentication/getting-started"
+    nano $GOOGLE_APPLICATION_CREDENTIALS
+    chmod 400 $GOOGLE_APPLICATION_CREDENTIALS
+
+    export GOOGLE_APPLICATION_CREDENTIALS
+    echo -e ' >> Add this to your ~/.bashrc:\n\n\
+        export GOOGLE_APPLICATION_CREDENTIALS='$GOOGLE_APPLICATION_CREDENTIALS'\n\n
+    ```
+
+3. Then get your data from the remote.
+
+    > `dvc pull`
+
+    Or add new data to the bucket
+
+    > `dvc add data/dataset && dvc push`
