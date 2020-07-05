@@ -2,10 +2,12 @@
     <div
         ref='cnv'
         class="cnv section columns is-multiline"
+        tabindex="-1"
         @keyup.left="prev_image"
         @keyup.81="prev_image"
         @keyup.right="next_image"
         @keyup.69="next_image"
+        @keyup.83="post_annotations"
     >
         <div
             v-if="img_id_short"
@@ -13,117 +15,117 @@
         >
             <small>ID: {{ img_id_short }}</small>
         </div>
-        <div class="center column is-full">
-            <h4 class="title is-4 has-text-centered">Iris #{{ this.sequential_counter + 1 }}</h4>
+        <div
+            class="center column is-full"
+            id="control-panel"
+        >
+            <div class="columns is-centered is-multiline">
+                <div class="column is-2">
+                    <h4 class="title is-5 has-text-centered">
+                        Image {{ this.sequential_counter + 1 }} / {{ this.images.length }}
+                    </h4>
+                </div>
+                <div class="column is-1"><button
+                        class="button is-info"
+                        id="btn-previous"
+                        @click="prev_image"
+                    >
+                        <b-icon
+                            pack="fas"
+                            icon="chevron-left"
+                        > </b-icon> <span>Prev. (Q)</span>
+                    </button> </div>
+                <div class="column is-1"><button
+                        class="button is-info"
+                        id="btn-next"
+                        @click="next_image"
+                    >
+                        <span>Next (E)</span>
+                        <b-icon
+                            pack="fas"
+                            icon="chevron-right"
+                        > </b-icon>
+                    </button>
+                </div>
+                <!-- <div class="column is-6"><button class="button is-info" id="btn-undo">       <b-icon pack="fas" icon="undo">        </b-icon> <span>Undo (Z)</span>     </button>   </div>
+                    <div class="column is-6"><button class="button is-info" id="btn-redo">       <b-icon pack="fas" icon="redo">        </b-icon> <span>Redo (X)</span>     </button>   </div> -->
+                <!-- <div class="column is-6 is-offset-3"><button class="button is-info" id="btn-brush"> <b-icon pack="fas" icon="brush">       </b-icon> <span>Brush</span>    </button>   </div> -->
+                <div class="column is-1">
+                    <button
+                        class="button is-success"
+                        id="btn-sync"
+                        @click="post_annotations"
+                    >
+                        <b-icon
+                            pack="fas"
+                            icon="sync"
+                        ></b-icon>
+                        <span>Sync (S)</span>
+                    </button>
+                </div>
+                <div class="column is-1">
+                    <div class="columns" style="margin-bottom: 0;">
+                        <div class="column">
+                            <button
+                                class="button is-info"
+                                id="btn-brush-dec"
+                                @click="canvas_brush_dec"
+                            >
+                                <b-icon
+                                    pack="fas"
+                                    icon="minus"
+                                ></b-icon>
+                            </button>
+                        </div>
+                        <div class="column is-half">
+                            <button
+                                class="button is-info"
+                                id="btn-brush-inc"
+                                @click="canvas_brush_inc"
+                            >
+                                <b-icon
+                                    pack="fas"
+                                    icon="plus"
+                                ></b-icon>
+                            </button>
+                        </div>
+                    </div>
+                    <span>Brush size</span>
+                    <span class="right">{{ this.brush_size }}</span>
+                </div>
+                <div class="column is-1">
+                    <button
+                        class="button is-danger"
+                        id="btn-eraser"
+                        @click="canvas_clear"
+                    >
+                        <b-icon
+                            pack="fas"
+                            icon="eraser"
+                        ></b-icon>
+                        <span>Clear</span>
+                    </button>
+                </div>
+                <!-- <div class="column is-6 is-offset-3"><hr><button class="button is-success" id="btn-save" @click="export_annotation"> <b-icon pack="fas" icon="save">            </b-icon> <span>Export</span>    </button>   </div> -->
+            </div>
         </div>
         <div class="column is-full">
             <div class="columns is-multiline is-centered">
-                <div class="column">
+                <div class="column canvas-container-wrapper">
                     <h5 class="title is-5 has-text-centered">Reference image</h5>
                     <canvas
+                        class="app-canvas"
                         id="vis-canvas"
                         ref="vis-canvas"
                     />
                 </div>
-                <div class="column">
+                <div class="column canvas-container-wrapper">
                     <h5 class="title is-5 has-text-centered">Annotation canvas</h5>
                     <canvas
+                        class="app-canvas"
                         id="main-canvas"
                         ref="main-canvas"
                     />
-                </div>
-                <div
-                    class="column is-2"
-                    id="control-panel"
-                >
-                    <div class="columns is-multiline">
-                        <div class="column is-6"><button
-                                class="button is-info"
-                                id="btn-previous"
-                                @click="prev_image"
-                            >
-                                <b-icon
-                                    pack="fas"
-                                    icon="chevron-left"
-                                > </b-icon> <span>Previous</span>
-                            </button> </div>
-                        <div class="column is-6"><button
-                                class="button is-info"
-                                id="btn-next"
-                                @click="next_image"
-                            >
-                                <b-icon
-                                    pack="fas"
-                                    icon="chevron-right"
-                                > </b-icon> <span>Next</span>
-                            </button> </div>
-                        <!-- <div class="column is-6"><button class="button is-info" id="btn-undo">       <b-icon pack="fas" icon="undo">        </b-icon> <span>Undo (Z)</span>     </button>   </div>
-                        <div class="column is-6"><button class="button is-info" id="btn-redo">       <b-icon pack="fas" icon="redo">        </b-icon> <span>Redo (X)</span>     </button>   </div> -->
-                        <!-- <div class="column is-6 is-offset-3"><button class="button is-info" id="btn-brush"> <b-icon pack="fas" icon="brush">       </b-icon> <span>Brush</span>    </button>   </div> -->
-                        <div class="column is-6 is-offset-3">
-                            <hr>
-                            <button
-                                class="button is-success"
-                                id="btn-sync"
-                                @click="post_annotations"
-                            >
-                                <b-icon
-                                    pack="fas"
-                                    icon="sync"
-                                ></b-icon>
-                                <span>Sync</span>
-                            </button>
-                        </div>
-                        <div class="column is-6 is-offset-3">
-                            <hr>
-
-                            <span>Brush size</span>
-                            <div class="columns">
-                                <div class="column">
-                                    <button
-                                        class="button is-info"
-                                        id="btn-brush-dec"
-                                        @click="canvas_brush_dec"
-                                    >
-                                        <b-icon
-                                            pack="fas"
-                                            icon="minus"
-                                        ></b-icon>
-                                    </button>
-                                </div>
-                                <div class="column">
-                                    {{ this.brush_size }}
-                                </div>
-                                <div class="column">
-                                    <button
-                                        class="button is-info"
-                                        id="btn-brush-inc"
-                                        @click="canvas_brush_inc"
-                                    >
-                                        <b-icon
-                                            pack="fas"
-                                            icon="plus"
-                                        ></b-icon>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="column is-6 is-offset-3">
-                            <hr>
-                            <button
-                                class="button is-danger"
-                                id="btn-eraser"
-                                @click="canvas_clear"
-                            >
-                                <b-icon
-                                    pack="fas"
-                                    icon="eraser"
-                                ></b-icon>
-                                <span>Clear canvas</span>
-                            </button>
-                        </div>
-                        <!-- <div class="column is-6 is-offset-3"><hr><button class="button is-success" id="btn-save" @click="export_annotation"> <b-icon pack="fas" icon="save">            </b-icon> <span>Export</span>    </button>   </div> -->
-                    </div>
                 </div>
                 <div class="column hidden">
                     <canvas
@@ -402,15 +404,7 @@ export default {
 }
 </script>
 
-<style scoped>
-#main-canvas {
-    width: 100%;
-    height: 100%;
-    display: block;
-    margin: auto;
-    border: 1px solid #09f;
-    border-radius: 0.5em;
-}
+<style>
 .image_id {
     font-family: "Courier New", Courier, monospace;
     text-align: right;
@@ -421,14 +415,36 @@ export default {
     right: 0;
     top: 0;
 }
-button {
+.canvas-container-wrapper > *,
+.app-canvas,
+#main-canvas,
+#vis-canvas {
+    padding: 0;
+    margin: auto;
+    display: block;
+}
+#main-canvas,
+#vis-canvas {
+    border-radius: 1em;
+    /* border: 1px solid black; */
+}
+button,
+button > * {
     width: 100%;
+    font-size: 90%;
 }
 .cnv {
+    min-width: 1600;
+    min-height: 900;
     padding-top: 0;
 }
 .hidden {
     border: 1px solid red;
     display: none;
+}
+.right {
+    text-align: right;
+    display: block;
+    float: right;
 }
 </style>

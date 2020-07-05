@@ -2,7 +2,7 @@
     <div class="section" id="app">
         <b-navbar>
             <template slot="start">
-                <h1 class="title is-2">EyeTagger</h1>
+                <h1 class="title is-3">EyeTagger</h1>
             </template>
             <template slot="end">
                 <b-navbar-item><router-link :to="{ name: 'home' }">
@@ -100,8 +100,14 @@ export default {
     font-family: "Avenir", Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    min-width: 1600px;
+    min-height: 900px;
     color: #2c3e50;
     margin-top: 60px;
+    margin-top: 1em;
     padding-top: 0;
+}
+[tabindex] {
+   outline: none !important;
 }
 </style>
