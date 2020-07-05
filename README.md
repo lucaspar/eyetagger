@@ -134,10 +134,10 @@ Check [backups.sh](./backups.sh) for a simple automated version.
 
 ```txt
 To run it every 6 hours:
-0 */6 * * * /eyetagger/backup.sh
+0 */6 * * * /eyetagger/backups.sh >> /eyetagger/data/logs/backups.log 2>&1
 
 Or every business day (Mon-Fri) at 6pm:
-0 18 * * 1-5 /eyetagger/backup.sh
+0 18 * * 1-5 /eyetagger/backups.sh >> /eyetagger/data/logs/backups.log 2>&1
 ```
 
 
