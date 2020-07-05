@@ -6,7 +6,9 @@ db.sqlite3
 __pycache__
 node_modules
 
-# logs
+# ignore logs but keep logs folder
+!/data/logs/
+/data/logs/*
 *.log
 npm-debug.log*
 yarn-debug.log*
