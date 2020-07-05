@@ -30,21 +30,30 @@ class MessageViewSet(viewsets.ModelViewSet):
 
 class ImageViewSet(viewsets.ViewSet):
     """
-    API endpoint that allows images to be viewed and annotations stored.
+    API endpoint that allows images to be viewed.
     """
 
     queryset = Image.objects.all()
 
     def list(self, request):
         print(" > Listing")
-        MAX_ITEMS_TO_RETURN = 5
+        MAX_ITEMS_TO_RETURN = 100
 
-        filtered_set = self.queryset.filter(lens_type="F")  # return only "fake" lenses
-        filtered_set = filtered_set.order_by('img_id')
-        filtered_set = filtered_set[:MAX_ITEMS_TO_RETURN]
+        # order images by id
+        image_set = self.queryset.filter(lens_type="F")  # return only "fake" lenses
+        image_set = image_set.order_by('img_id')
 
-        serializer = ImageSerializer(filtered_set, many=True)
+        # exclude the images already with annotations in the database
+        annotations = Annotation.objects.all()
+        image_set = image_set.exclude(img_id__in=[x.image.img_id for x in annotations])
+        print("Remaining images: {}".format(image_set.count()))
+
+        # cap to maximum number
+        image_set = image_set[:MAX_ITEMS_TO_RETURN]
+
+        serializer = ImageSerializer(image_set, many=True)
         return Response(serializer.data)
+
 
     def retrieve(self, request, pk):
         print(" > Retrieving")
@@ -52,9 +61,11 @@ class ImageViewSet(viewsets.ViewSet):
         serializer = ImageSerializer(image)
         return Response(serializer.data)
 
+
     @permission_classes([ permissions.IsAdminUser ])
     def create(self, request):
         pass
+
 
     def patch(self, request, pk):
         pass
@@ -74,17 +85,16 @@ class UserDetail(generics.RetrieveAPIView):
 
 class AnnotationViewSet(viewsets.ViewSet):
 
-    # TODO: make a proper front-end login and uncomment the line below
-    # permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAnnotatorOwnerOrStaff]
     queryset = Annotation.objects.all()
     http_method_names = ['get', 'post', 'head']
 
     def list(self, request):
         """Returns the list of annotations."""
 
-        print(" > Listing: {}".format(len(self.queryset)))
+        print(" > Listing: {}".format(self.queryset.count()))
         serializer = AnnotationSerializer(self.queryset, context={'request': request}, many=True)
         return Response(serializer.data)
+
 
     def retrieve(self, request, pk):
         """Returns the details of an annotation."""
@@ -93,6 +103,7 @@ class AnnotationViewSet(viewsets.ViewSet):
         image = get_object_or_404(self.queryset, image=pk)
         serializer = AnnotationSerializer(image)
         return Response(serializer.data)
+
 
 
     def create(self, request):
