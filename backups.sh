@@ -21,5 +21,9 @@ docker exec eyetagger_db_1 pg_dump -U $DB_USER $DB_NAME | \
 
 # here you can also upload $BACKUP_DIR/$BACKUP_NAME
 # somewhere else for a remote backup, (e.g. using dvc)
+cd $PROJECT_DIR
+export GOOGLE_APPLICATION_CREDENTIALS=$HOME/.gcp/eyetagger.json
+/usr/local/bin/pipenv run dvc add $BACKUP_DIR/$BACKUP_NAME
+/usr/local/bin/pipenv run dvc push
 
 echo "------"
