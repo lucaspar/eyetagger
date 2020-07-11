@@ -16,6 +16,7 @@ from .models import Message, MessageSerializer
 from .models import Image, ImageSerializer
 from .models import UserSerializer
 
+import random
 
 # Serve Vue Application
 index_view = never_cache(TemplateView.as_view(template_name='index.html'))
@@ -36,22 +37,26 @@ class ImageViewSet(viewsets.ViewSet):
     queryset = Image.objects.all()
 
     def list(self, request):
+
         print(" > Listing")
         MAX_ITEMS_TO_RETURN = 100
 
-        # order images by id
-        image_set = self.queryset.filter(lens_type="F")  # return only "fake" lenses
-        image_set = image_set.order_by('img_id')
+        # filter and sort images by id
+        response_set = self.queryset.filter(lens_type="F")  # return only "fake" lenses
+        response_set = response_set.order_by('img_id')
 
         # exclude the images already with annotations in the database
         annotations = Annotation.objects.all()
-        image_set = image_set.exclude(img_id__in=[x.image.img_id for x in annotations])
-        print("Remaining images: {}".format(image_set.count()))
+        valid_annotated_img = [ x.image.img_id for x in annotations ]
+        response_set = response_set.exclude(img_id__in=valid_annotated_img)
+        print("Remaining images: {}".format(response_set.count()))
 
-        # cap to maximum number
-        image_set = image_set[:MAX_ITEMS_TO_RETURN]
+        # shuffle and cap to maximum number
+        response_set = sorted(response_set, key=lambda x: random.random())
+        response_set = response_set[:MAX_ITEMS_TO_RETURN]
 
-        serializer = ImageSerializer(image_set, many=True)
+        # send to client
+        serializer = ImageSerializer(response_set, many=True)
         return Response(serializer.data)
 
 
@@ -121,7 +126,6 @@ class AnnotationViewSet(viewsets.ViewSet):
                 annotator=request.user,
                 image=img_instance,
             )
-            # print(ann['annotation'])
             annotation.annotation = ann['annotation'] if 'annotation' in ann else ""
             try:
                 response = annotation.save()
@@ -152,8 +156,3 @@ class AnnotationViewSet(viewsets.ViewSet):
             },
             status=status.HTTP_400_BAD_REQUEST
         )
-
-
-# class AnnotationDetail(viewsets.ViewSet):
-#     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAnnotatorOwnerOrStaff]
-#     queryset = Annotation.objects.all()
