@@ -187,9 +187,8 @@ rm      /tmp/dump.sql.gz     /tmp/dump.sql
 
 1. Adapt the environment files for the backend in `env/`.
 2. Adapt the environment file for the frontend in `vue.config.js`.
-3. Configure `ALLOWED_HOSTS` in [`backend.settings.prod`](/backend/settings/prod.py)
-4. Follow the [Django deployment checklist](https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/) for further configuration.
-5. Deploy the dockerized application in a remote server by running it in daemon form: `docker-compose up -d && docker-compose logs -f`.
+3. Follow the [Django deployment checklist](https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/) for further configuration.
+4. Deploy the dockerized application in a remote server by running it in daemon form: `docker-compose up -d && docker-compose logs -f`.
 
 ## 5. Integrating DVC
 
