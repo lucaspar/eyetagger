@@ -69,9 +69,16 @@ class ImageViewSet(viewsets.ViewSet):
         response_set = self.queryset.filter(lens_type="F")  # return only "fake" lenses
         response_set = response_set.order_by('img_id')
 
-        # exclude the images already with annotations in the database
+        # exclude the images already annotated by valid (non-test) users
         annotations = Annotation.objects.all()
-        valid_annotated_img = [ x.image.img_id for x in annotations ]
+        annotator_users = [x.annotator for x in annotations]
+        valid_profiles = Profile.objects        \
+            .filter(is_test=False)              \
+            .filter(user__in=annotator_users)
+        valid_users = [ p.user for p in valid_profiles ]
+        valid_annotated_img = [ \
+            x.image.img_id for x in annotations if x.annotator in valid_users
+        ]
         response_set = response_set.exclude(img_id__in=valid_annotated_img)
         print("Remaining images: {}".format(response_set.count()))
 
