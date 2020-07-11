@@ -37,6 +37,20 @@ class ProfileViewSet(viewsets.ModelViewSet):
     """
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
+    http_method_names = ['get', 'patch']
+
+    @permission_classes([ permissions.IsAdminUser ])
+    def patch(self, request, pk):
+        testmodel_object = self.get_object(pk)
+        serializer = serializer_class(
+            testmodel_object,
+            data=request.data,
+            partial=True
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(code=201, data=serializer.data)
+        return JsonResponse(code=400, data="Invalid parameters")
 
 
 class ImageViewSet(viewsets.ViewSet):

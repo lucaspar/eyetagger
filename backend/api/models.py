@@ -29,7 +29,7 @@ def save_user_profile(sender, instance, **kwargs):
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ('user', 'is_test')
+        fields = ('pk', 'user', 'is_test')
 
 
 class Image(models.Model):
@@ -72,14 +72,14 @@ class Annotation(models.Model):
 class MessageSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Message
-        fields = ('url', 'subject', 'body', 'pk')
+        fields = ('pk', 'url', 'subject', 'body')
 
 
 class ImageSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Image
         fields = (
-            'img_id', 'extension', 'img_path', 'user_id', 'sample_id',
+            'pk', 'img_id', 'extension', 'img_path', 'user_id', 'sample_id',
             'eye', 'lens_type', 'nir_illumination', 'lens_brand', 'is_regular',
         )
 
@@ -87,7 +87,7 @@ class ImageSerializer(serializers.HyperlinkedModelSerializer):
 class AnnotationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Annotation
-        fields = ('annotator', 'image', 'annotation', 'pk')
+        fields = ('pk', 'annotator', 'image', 'annotation')
 
 
 class UserSerializer(serializers.ModelSerializer):
