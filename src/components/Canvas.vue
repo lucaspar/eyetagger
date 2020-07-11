@@ -410,10 +410,11 @@ export default {
     text-align: right;
     position: absolute;
     font-size: 9pt;
+    z-index: 1000;
     color: #888;
     margin: 1em;
+    bottom: 0;
     right: 0;
-    top: 0;
 }
 .canvas-container-wrapper > *,
 .app-canvas,
