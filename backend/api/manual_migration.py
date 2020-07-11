@@ -29,6 +29,7 @@ import os
 
 
 # if negative, all images are registered in database
+DJANGO_APP_NAME = "api"
 MAX_REGISTERED_IMAGES = -1
 
 
@@ -128,7 +129,7 @@ def import_dataset(apps, schema_editor):
     }
 
     # load other variables
-    Image = apps.get_model("api", "Image")
+    Image = apps.get_model(DJANGO_APP_NAME, "Image")
     DATASET_ROOT = settings.DATASET_ROOT
 
     # get list of images and metadata

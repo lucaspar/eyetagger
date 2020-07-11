@@ -9,11 +9,12 @@ from django.urls import path, include
 from rest_framework import routers
 
 from .api.views import index_view, MessageViewSet, ImageViewSet
-from .api.views import UserList, UserDetail, AnnotationViewSet
+from .api.views import UserList, UserDetail, AnnotationViewSet, ProfileViewSet
 
 router = routers.DefaultRouter()
-router.register('messages', MessageViewSet)
+# router.register('messages', MessageViewSet)
 router.register('images', ImageViewSet)
+router.register('profiles', ProfileViewSet)
 router.register('annotations', AnnotationViewSet)
 
 urlpatterns = [

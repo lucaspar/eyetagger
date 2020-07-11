@@ -12,6 +12,7 @@ from rest_framework import status
 
 from .permissions import IsAnnotatorOwnerOrStaff
 from .models import Annotation, AnnotationSerializer
+from .models import Profile, ProfileSerializer
 from .models import Message, MessageSerializer
 from .models import Image, ImageSerializer
 from .models import UserSerializer
@@ -21,12 +22,21 @@ import random
 # Serve Vue Application
 index_view = never_cache(TemplateView.as_view(template_name='index.html'))
 
+
 class MessageViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows messages to be viewed or edited.
     """
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
+
+
+class ProfileViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows messages to be viewed or edited.
+    """
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
 
 
 class ImageViewSet(viewsets.ViewSet):
@@ -72,6 +82,7 @@ class ImageViewSet(viewsets.ViewSet):
         pass
 
 
+    @permission_classes([ permissions.IsAdminUser ])
     def patch(self, request, pk):
         pass
 
@@ -101,6 +112,7 @@ class AnnotationViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
 
+    @permission_classes([ IsAnnotatorOwnerOrStaff ])
     def retrieve(self, request, pk):
         """Returns the details of an annotation."""
 

@@ -1,11 +1,35 @@
 from django.db import models
+from django.dispatch import receiver
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
 
 
 class Message(models.Model):
     subject = models.CharField(max_length=200)
     body = models.TextField()
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(to=User, on_delete=models.CASCADE)
+    is_test = models.BooleanField(default=False)
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ('user', 'is_test')
 
 
 class Image(models.Model):
