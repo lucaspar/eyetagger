@@ -3,9 +3,9 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "serve": "vue-cli-service serve",
-        "build": "vue-cli-service build",
-        "lint": "vue-cli-service lint"
+        "serve": "npx vue-cli-service serve",
+        "build": "npx vue-cli-service build",
+        "lint": "npx vue-cli-service lint"
     },
     "dependencies": {
         "@fortawesome/fontawesome-free": "^5.13.0",
@@ -14,6 +14,10 @@
         "@fortawesome/vue-fontawesome": "^0.1.9",
         "@sentry/browser": "^5.15.5",
         "@sentry/integrations": "^5.15.5",
+        "@vue/babel-preset-app": "^4.4.6",
+        "@vue/cli-plugin-babel": "^3.0.0-rc.12",
+        "@vue/cli-plugin-eslint": "^3.0.0-rc.12",
+        "@vue/cli-service": "^3.0.0-rc.12",
         "axios": "^0.18.0",
         "buefy": "^0.8.17",
         "fabric": "^3.6.3",
@@ -22,19 +26,18 @@
         "vue": "^2.5.17",
         "vue-awesome-notifications": "^3.1.1",
         "vue-router": "^3.0.1",
+        "vue-template-compiler": "^2.5.17",
         "vuetify": "^2.2.27",
         "vuex": "^3.0.1",
         "vuex-persistedstate": "^3.0.1"
     },
-    "devDependencies": {
-        "@vue/cli-plugin-babel": "^3.0.0-rc.12",
-        "@vue/cli-plugin-eslint": "^3.0.0-rc.12",
-        "@vue/cli-service": "^3.0.0-rc.12",
-        "vue-template-compiler": "^2.5.17"
-    },
     "babel": {
         "presets": [
-            "@vue/app"
+            [
+                "@vue/app",
+                { "useBuiltIns": "entry"
+                }
+            ]
         ]
     },
     "eslintConfig": {

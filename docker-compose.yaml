@@ -16,19 +16,19 @@ services:
     web:
         build: .
         # DEVELOPMENT:
-        # command: >
-        #     bash -c "
-        #         pipenv run python manage.py migrate &&
-        #         pipenv run python manage.py runserver 0.0.0.0:8000 &
-        #         yarn serve"
-        # PRODUCTION:
         command: >
             bash -c "
-                yarn build --no-clean &&
-                pipenv run ./manage.py collectstatic --no-input &&
-                pipenv run ./manage.py migrate &&
-                pipenv run gunicorn --log-level debug --access-logfile - \
-                  --workers 3 --bind 0.0.0.0:8000 backend.wsgi:application"
+                pipenv run python manage.py migrate &&
+                pipenv run python manage.py runserver 0.0.0.0:8000 &
+                yarn serve"
+        # PRODUCTION:
+        # command: >
+        #     bash -c "
+        #         yarn build --no-clean &&
+        #         pipenv run ./manage.py collectstatic --no-input &&
+        #         pipenv run ./manage.py migrate &&
+        #         pipenv run gunicorn --log-level debug --access-logfile - \
+        #           --workers 3 --bind 0.0.0.0:8000 backend.wsgi:application"
         restart: always
         env_file:
           - env/django_db.env

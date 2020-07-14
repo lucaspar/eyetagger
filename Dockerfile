@@ -57,7 +57,8 @@ RUN apt-get update && apt-get install -y yarn
 # install project dependencies
 COPY Pipfile Pipfile.lock package.json yarn.lock ./
 RUN pipenv install
-RUN yarn && yarn install
+RUN yarn && yarn install --production=false
+RUN yarn global add npx
 
 # copy other project files
 COPY . .
