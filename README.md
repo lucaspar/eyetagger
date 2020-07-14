@@ -35,7 +35,7 @@ If your dataset is remote (cloud or another computer), you might want to start u
 ```sh
 # copy all example dotenv files
 sudo apt install mmv
-mmv 'env/*.env.example' 'env/#1.env'
+mmv -c 'env/*.env.example' 'env/#1.env'
 
 # edit all env/*.env files setting the following:
 #    DJANGO_STATIC_HOST
