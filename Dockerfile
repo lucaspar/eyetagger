@@ -63,11 +63,6 @@ RUN yarn global add npx
 # copy other project files
 COPY . .
 
-# build static files
-RUN pipenv run ./manage.py collectstatic --no-input
-RUN yarn upgrade
-RUN yarn build --no-clean
-
 # run new migrations and serve app
 CMD pipenv run ./manage.py makemigrations && \
     pipenv run ./manage.py migrate && \
