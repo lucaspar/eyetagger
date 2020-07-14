@@ -3,9 +3,9 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "serve": "npx vue-cli-service serve",
-        "build": "npx vue-cli-service build",
-        "lint": "npx vue-cli-service lint"
+        "serve": "vue-cli-service serve",
+        "build": "vue-cli-service build",
+        "lint": "vue-cli-service lint"
     },
     "dependencies": {
         "@fortawesome/fontawesome-free": "^5.13.0",
@@ -21,10 +21,12 @@
         "axios": "^0.18.0",
         "buefy": "^0.8.17",
         "fabric": "^3.6.3",
+        "global": "^4.4.0",
         "js-cookie": "^2.2.0",
         "paper": "^0.12.4",
         "vue": "^2.5.17",
         "vue-awesome-notifications": "^3.1.1",
+        "vue-cli": "^2.9.6",
         "vue-router": "^3.0.1",
         "vue-template-compiler": "^2.5.17",
         "vuetify": "^2.2.27",
@@ -35,7 +37,8 @@
         "presets": [
             [
                 "@vue/app",
-                { "useBuiltIns": "entry"
+                {
+                    "useBuiltIns": "entry"
                 }
             ]
         ]

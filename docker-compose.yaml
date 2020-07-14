@@ -18,6 +18,7 @@ services:
         # DEVELOPMENT:
         command: >
             bash -c "
+                yarn add global vue-cli;
                 pipenv run python manage.py migrate &&
                 pipenv run python manage.py runserver 0.0.0.0:8000 &
                 yarn serve"
