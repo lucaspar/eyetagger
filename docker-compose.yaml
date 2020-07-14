@@ -19,9 +19,11 @@ services:
         command: >
             bash -c "
                 yarn add global vue-cli;
+                yarn build --no-clean &&
+                pipenv run ./manage.py collectstatic --no-input &&
                 pipenv run python manage.py migrate &&
-                pipenv run python manage.py runserver 0.0.0.0:8000 &
-                yarn serve"
+                yarn serve &
+                pipenv run python manage.py runserver 0.0.0.0:8000"
         # PRODUCTION:
         # command: >
         #     bash -c "
