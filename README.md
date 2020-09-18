@@ -1,6 +1,8 @@
 # EyeTagger | Iris Annotation Tool
 
-<img src="/src/assets/logo-iris.png" alt="Annotator Logo" width="300"/>
+<img src="/src/assets/logo-iris.png" alt="Annotator Logo" width="50"/>
+
+![](images/demo.png )
 
 ## Summary
 
