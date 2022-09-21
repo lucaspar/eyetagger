@@ -29,7 +29,7 @@
         "vue-cli": "^2.9.6",
         "vue-router": "^3.0.1",
         "vue-template-compiler": "^2.5.17",
-        "vuetify": "^2.2.27",
+        "vuetify": "^2.6.10",
         "vuex": "^3.0.1",
         "vuex-persistedstate": "^3.0.1"
     },
