@@ -61,6 +61,7 @@ def _load_csv(csv_path):
     FILENAME = 'filename'
     df = df.set_index(FILENAME)
     df.sort_values(by=[FILENAME])
+    return df
 
 
 def _extract_csv_to_db(csv_entry, csv_fields, db_fields, csv_db_map=dict()):
