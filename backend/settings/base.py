@@ -14,120 +14,123 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+from pathlib import Path
+
 import environ
 
 # build paths inside the project like this: os.path.join(BASE_DIR, ...)
-SETTINGS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BASE_DIR = os.path.dirname(SETTINGS_DIR)
+SETTINGS_DIR: Path = Path(__file__).resolve().parent.parent
+BASE_DIR: Path = SETTINGS_DIR.parent
 
 # load default .env file (casting, default)
 env = environ.Env(
     DEBUG=(bool, False),
     DB_PORT=(int, 5432),
 )
-dotenv_dir = os.path.join(BASE_DIR, 'env')
-for env_name in [ 'django_app.env', 'django_db.env' ]:
-    env_file = os.path.join(dotenv_dir, env_name)
+dotenv_dir: Path = BASE_DIR / "env"
+for env_name in ["django_app.env", "django_db.env"]:
+    env_file: Path = dotenv_dir / env_name
     environ.Env.read_env(env_file=env_file)
 
-SECRET_KEY = env('SECRET_KEY')
-DEBUG = env('DEBUG')
-DJANGO_DEBUG = DEBUG
-CSRF_TRUSTED_ORIGINS = [ 'localhost', 'iris.devincive.com' ]
-ALLOWED_HOSTS = ['*']
+SECRET_KEY: str = env("SECRET_KEY")
+DEBUG: bool = env("DEBUG")
+DJANGO_DEBUG: bool = DEBUG
+CSRF_TRUSTED_ORIGINS: list[str] = [
+    "http://0.0.0.0",
+    "http://localhost",
+    "https://localhost",
+]
+ALLOWED_HOSTS: list[str] = ["*"]
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django_extensions',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'whitenoise.runserver_nostatic',  # overrides django behavior, to use whitenoise instead
-    'django.contrib.staticfiles',
-    'rest_framework.authtoken',
-    'rest_framework',
-    'backend.api',
-    'djoser',
+    "django_extensions",
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "whitenoise.runserver_nostatic",  # use whitenoise instead of django static
+    "django.contrib.staticfiles",
+    "rest_framework.authtoken",
+    "rest_framework",
+    "backend.api",  # api 'app'
+    "djoser",  # user registration
 ]
 
 REST_FRAMEWORK = {
-
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
     ],
-
     # lock API for authenticated users only
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
     ],
-
     # pagination
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 50
-
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 50,
 }
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'backend.urls'
+DEFAULT_AUTO_FIELD: str = "django.db.models.AutoField"
+ROOT_URLCONF: str = "backend.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['dist'],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": ["dist"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': True,
-    'formatters': {
-        'verbose': {
-            'format':
-            '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+    "version": 1,
+    "disable_existing_loggers": True,
+    "formatters": {
+        "verbose": {
+            "format": "%(levelname)s %(asctime)s %(module)s "
+            "%(process)d %(thread)d %(message)s",
         },
     },
-    'handlers': {
-        'console': {
-            'level': 'NOTSET',
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose'
-        }
-    },
-    'loggers': {
-        '': {
-            'handlers': ['console'],
-            'level': 'NOTSET',
+    "handlers": {
+        "console": {
+            "level": "NOTSET",
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
         },
-        'django.request': {
-            'handlers': ['console'],
-            'propagate': False,
-            'level': 'ERROR'
-        }
-    }
+    },
+    "loggers": {
+        "": {
+            "handlers": ["console"],
+            "level": "NOTSET",
+        },
+        "django.request": {
+            "handlers": ["console"],
+            "propagate": False,
+            "level": "ERROR",
+        },
+    },
 }
 
 # WSGI_APPLICATION = 'backend.wsgi.application'
@@ -135,42 +138,43 @@ LOGGING = {
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 DATABASES = {
-    'default': {
+    "default": {
         # 'ENGINE': 'django.db.backends.sqlite3',
         # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        'ENGINE':   'django.db.backends.postgresql_psycopg2',
-        'NAME':     env('DB_NAME'),
-        'USER':     env('DB_USER'),
-        'PASSWORD': env('DB_PASS'),
-        'HOST':     env('DB_HOST'),
-        'PORT':     env('DB_PORT'),
-    }
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": env("DB_NAME"),
+        "USER": env("DB_USER"),
+        "PASSWORD": env("DB_PASS"),
+        "HOST": env("DB_HOST"),
+        "PORT": env("DB_PORT"),
+    },
 }
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation."
+        "UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = env('TIMEZONE')
-USE_I18N = True
-USE_L10N = True
-USE_TZ = True
+LANGUAGE_CODE: str = "en-us"
+TIME_ZONE: str = env("TIMEZONE")
+USE_I18N: bool = True
+USE_L10N: bool = True
+USE_TZ: bool = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
@@ -179,17 +183,20 @@ USE_TZ = True
 # In Production, it's recommended use an alternative approach such as:
 # http://whitenoise.evans.io/en/stable/django.html?highlight=django
 
-MIDDLEWARE_CLASSES = (
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-)
+MIDDLEWARE_CLASSES = ("whitenoise.middleware.WhiteNoiseMiddleware",)
 
 # Static files
-STATICFILES_DIRS    = []
-STATIC_HOST         = os.environ.get('DJANGO_STATIC_HOST', '')      # modify host for CDN hosting,
-STATIC_URL          = os.path.join(STATIC_HOST, 'static') + '/'
-STATIC_ROOT         = os.path.join(BASE_DIR, 'dist', 'static')     # static files in the same location as webpack build files
-DATASET_ROOT        = os.path.join(STATIC_ROOT, 'data', 'images')  # dataset files
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_DIRS: list[Path] = []
+STATIC_HOST: str = os.environ.get(
+    "DJANGO_STATIC_HOST",
+    "",
+)  # modify host for CDN hosting,
+STATIC_URL: str = STATIC_HOST + "/static/"  # must end with '/'
+STATIC_ROOT: Path = (
+    BASE_DIR / "dist" / "static"
+)  # static files in the same location as webpack build files
+DATASET_ROOT: Path = Path(STATIC_ROOT) / "data" / "images"  # dataset file
+STATICFILES_STORAGE: str = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Insert Whitenoise Middleware at top but below Security Middleware
 # MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware',)

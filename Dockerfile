@@ -48,9 +48,11 @@ RUN apt-get update && apt-get install -y yarn
 #  PROJECT
 # =========
 
+# >>> DISABLED :: use docker compose command and bind mounts instead <<<
+
 # copy other project files
-COPY . .
+# COPY . .
 
 # install project dependencies and run project from the script, so the
 # env vars are properly set. Also run new migrations and serve app:
-CMD scripts/install-and-run.sh
+# CMD scripts/install-and-run.sh

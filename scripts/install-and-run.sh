@@ -15,8 +15,14 @@ function say() {
 
 function system-setup() {
     # add global yarn tools to container / runtime env.
-    yarn add global @vue/cli
-    yarn global add npx
+    if ! command -v npx &>/dev/null; then
+        say "Installing npx..."
+        yarn add global npx
+    fi
+    if ! command -v vue &>/dev/null; then
+        say "Installing Vue CLI..."
+        yarn add global @vue/cli
+    fi
 }
 
 function install-project() {
@@ -25,14 +31,18 @@ function install-project() {
 }
 
 function run-project() {
+    say "Building Vue project..."
+    yarn build --no-clean
     uv run ./manage.py collectstatic --no-input
     uv run ./manage.py makemigrations
     uv run ./manage.py migrate
     if [ "$DEBUG" == "True" ]; then
-        yarn serve &
-        uv run ./manage.py runserver
+        # say "Running Vue server in debug mode..."
+        # yarn serve 1>/dev/null &
+        say "Running Django server in debug mode..."
+        uv run ./manage.py runserver "0.0.0.0:$APP_PORT"
     else # assume production environment
-        yarn build --no-clean
+        say "Running Gunicorn server..."
         uv run gunicorn --log-level debug --access-logfile - \
             --workers 3 --bind "0.0.0.0:$APP_PORT" backend.wsgi:application
     fi
@@ -71,9 +81,9 @@ function main() {
     say "Environment: DEBUG=$DEBUG, APP_PORT=$APP_PORT"
     precondition-checks
     system-setup
-    say "Running installing project"
+    say "Running project install"
     install-project
-    upgrade-project
+    # upgrade-project
     say "Running project"
     run-project
 }

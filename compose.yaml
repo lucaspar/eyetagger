@@ -2,7 +2,7 @@ services:
 
     db:
         image: postgres:16
-        restart: always
+        restart: unless-stopped
         user: "1000:1000"
         env_file:
           - env/django_db.env
@@ -14,9 +14,9 @@ services:
 
     web:
         build: .
-        # command: ./scripts/install-and-run.sh
-        command: bash -c "while true; do sleep 10; done"
-        restart: always
+        command: ./scripts/install-and-run.sh
+        # command: bash -c "while true; do sleep 10; done"
+        restart: unless-stopped
         user: "1000:1000"
         env_file:
           - env/django_db.env
@@ -42,8 +42,8 @@ services:
             target: /app/dist/static/data
             read_only: false
         ports:
-          - "28000:8000"
-          - "29000:9000"
+          - 28000:8000
+          - 29000:9000
         depends_on:
           - db
         networks:
@@ -61,7 +61,7 @@ services:
 
     nginx:
         image: nginx:stable-alpine
-        restart: always
+        restart: unless-stopped
         command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
         ports:
           - 20080:80
