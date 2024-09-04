@@ -1,10 +1,9 @@
-version: '3.3'
-
 services:
 
     db:
-        image: postgres:13
+        image: postgres:16
         restart: always
+        user: "1000:1000"
         env_file:
           - env/django_db.env
         volumes:
@@ -15,24 +14,10 @@ services:
 
     web:
         build: .
-        # DEVELOPMENT:
-        command: >
-            bash -c "
-                yarn add global vue-cli;
-                yarn build --no-clean &&
-                pipenv run ./manage.py collectstatic --no-input &&
-                pipenv run python manage.py migrate &&
-                yarn serve &
-                pipenv run python manage.py runserver 0.0.0.0:8000"
-        # PRODUCTION:
-        # command: >
-        #     bash -c "
-        #         yarn build --no-clean &&
-        #         pipenv run ./manage.py collectstatic --no-input &&
-        #         pipenv run ./manage.py migrate &&
-        #         pipenv run gunicorn --log-level debug --access-logfile - \
-        #           --workers 3 --bind 0.0.0.0:8000 backend.wsgi:application"
+        # command: ./scripts/install-and-run.sh
+        command: bash -c "while true; do sleep 10; done"
         restart: always
+        user: "1000:1000"
         env_file:
           - env/django_db.env
           - env/django_app.env
@@ -42,6 +27,10 @@ services:
             source: ./
             target: /app
             read_only: false
+          # dependencies
+          - type: bind
+            source: ./cache/uv
+            target: /var/cache/uv
           # dataset - web app access
           - type: bind
             source: ./data/dataset
@@ -53,8 +42,8 @@ services:
             target: /app/dist/static/data
             read_only: false
         ports:
-          - "8000:8000"
-          - "9000:9000"
+          - "28000:8000"
+          - "29000:9000"
         depends_on:
           - db
         networks:
@@ -71,12 +60,12 @@ services:
     #       - ./deploy/certbot/www:/var/www/certbot
 
     nginx:
-        image: nginx:1.19.0-alpine
+        image: nginx:stable-alpine
         restart: always
         command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
         ports:
-          - 80:80
-          - 443:443
+          - 20080:80
+          - 20443:443
         depends_on:
           - web
         networks:

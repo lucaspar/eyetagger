@@ -15,6 +15,7 @@
         "@sentry/browser": "^5.15.5",
         "@sentry/integrations": "^5.15.5",
         "@vue/babel-preset-app": "^4.4.6",
+        "@vue/cli": "^5.0.8",
         "@vue/cli-plugin-babel": "^3.0.0-rc.12",
         "@vue/cli-plugin-eslint": "^3.0.0-rc.12",
         "@vue/cli-service": "^3.0.0-rc.12",

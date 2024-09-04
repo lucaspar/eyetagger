@@ -2,16 +2,16 @@
 
 <img src="/src/assets/logo-iris.png" alt="Annotator Logo" width="50"/>
 
-![](images/demo.png )
+![EyeTagger Web UI](images/demo.png)
 
 ## Summary
 
 + Dockerized application for simple deployment
-+ PostgreSQL DB <=> Django + Gunicorn + Nginx web server <= REST API => Vue-based SPA + Vuex
++ PostgreSQL DB ⇿ Django + Gunicorn + Nginx web server ≤ REST API → Vue-based SPA + Vuex
 + Django Whitenoise to serve static files, CDN Ready
 + Annotations stored in relational database
 + Access control / user management
-+ Vuex handles state management and persistance to never lose annotations on the front-end
++ Vuex handles state management and persistence to never lose annotations on the front-end
 
 ## 1. Getting Started
 
@@ -19,32 +19,48 @@
 
 Before getting started you should have the following installed and running:
 
-+ Docker >= v19
-+ Docker Compose >= v1.25
++ Docker >= v27 (with `docker compose` subcommand)
 
 ### 1.2. Link data
 
+Create a location for the Postgres database
+
+```bash
+mkdir -p data/postgres cache/uv/venv
+```
+
 Data upload via web interface if not possible yet, so the data needs to be mounted inside the container.
 
-If you have the images in the same machine, just put them in the expected location `data/dataset/` by creating a symbolic link (below) or just moving your data.
+If you have the images in the same machine, just put them in the expected location `data/dataset/` by creating a symbolic link (below):
 
 > `ln -s    $MY_DATASET_LOCATION    $(pwd)/data/dataset`
 
-If your dataset is remote (cloud or another computer), you might want to start using `dvc`. Check the [Integrating DVC](#5.-integrating-dvc) session below.
+Or just create a copy:
+
+> `rsync -aP $MY_DATASET_LOCATION   $(pwd)/data/dataset`
+
+Or, create a new location for a new dataset:
+
+```bash
+mkdir -p data/dataset
+```
+
+If your dataset is remote (cloud or another computer), you might want to start using `dvc`. Check the [Integrating DVC](#5-integrating-dvc-optional) session below.
 
 ### 1.3 Create environment
 
 ```sh
 # copy all example dotenv files
-sudo apt install mmv
-mmv -c 'env/*.env.example' 'env/#1.env'
+cp "env/django_app.env.example" "env/django_app.env"
+cp "env/django_db.env.example" "env/django_db.env"
 
 # edit all env/*.env files setting the following:
 #    DJANGO_STATIC_HOST
 #    SECRET_KEY
 #    DB_PASS
 #    POSTGRES_PASSWORD (same as DB_PASS)
-find env -name "*.env" -exec nano {} \;
+EDITOR=${EDITOR:-nano}
+find env -name "*.env" -exec "$EDITOR" {} \;
 ```
 
 ### 1.4. Run services
@@ -56,13 +72,13 @@ find env -name "*.env" -exec nano {} \;
 docker network create net-nginx-proxy
 
 # build docker images and run containers
-docker-compose up
+docker compose up
 
 # from another terminal, run the database migrations
-docker-compose exec web pipenv run /app/manage.py migrate
+docker compose exec web uv run /app/manage.py migrate
 
 # create django superuser
-docker-compose exec web pipenv run /app/manage.py createsuperuser
+docker compose exec web uv run /app/manage.py createsuperuser
 
 # access localhost:80 in your browser
 ```
@@ -75,15 +91,15 @@ docker-compose exec web pipenv run /app/manage.py createsuperuser
 
 #### Django + Vue container
 
-> `docker-compose exec web /bin/bash`
+> `docker compose exec web /bin/bash`
 
 #### Nginx container
 
-> `docker-compose exec nginx /bin/sh`
+> `docker compose exec nginx /bin/sh`
 
 #### PostgreSQL container
 
-> `docker-compose exec db psql --username eyetagger_admin --dbname eyetagger`
+> `docker compose exec db psql --username eyetagger_admin --dbname eyetagger`
 
 More PostgreSQL commands:
 
@@ -100,10 +116,10 @@ SELECT id, annotator_id, image_id FROM api_annotation;
 
 ### 2.2 Dashboards
 
-| Feature                     | Default location           | Comment                                                                          |
-| --------------------------- | -------------------------- | -------------------------------------------------------------------------------- |
-| Django REST Framework       | http://localhost/api       | Only available in development mode (_i.e._ `DEBUG=True` in `env/django_app.env`) |
-| Django Administration Panel | http://localhost/api/admin | Credentials created with `pipenv run ./manage.py createsuperuser`                |
+| Feature                     | Default location                         | Comment                                                                          |
+| --------------------------- | ---------------------------------------- | -------------------------------------------------------------------------------- |
+| Django REST Framework       | [/api](http://localhost/api)             | Only available in development mode (_i.e._ `DEBUG=True` in `env/django_app.env`) |
+| Django Administration Panel | [/api/admin](http://localhost/api/admin) | Credentials created with `uv run ./manage.py createsuperuser`                    |
 
 ### 2.3 Template Structure
 
@@ -125,8 +141,8 @@ SELECT id, annotator_id, image_id FROM api_annotation;
 To run it once:
 
 ```sh
-# docker-compose up db          # if db container is not running
-docker-compose exec db pg_dump -U eyetagger_admin eyetagger | \
+# docker compose up db          # if db container is not running
+docker compose exec db pg_dump -U eyetagger_admin eyetagger | \
     gzip > eyetagger_bkp_$(date +"%Y_%m_%d_%I_%M_%p").sql.gz
 ```
 
@@ -154,17 +170,17 @@ cp $YOUR_DUMP_GZ /tmp/dump.sql.gz
 gunzip -k /tmp/dump.sql.gz
 
 # copy to the running DB container
-# docker-compose up db          # if db container is not running
+# docker compose up db          # if db container is not running
 docker cp /tmp/dump.sql eyetagger_db_1:/dump.sql
 
 # create a new empty database
-docker-compose exec db createdb -U eyetagger_admin -T template0 eyetagger_new
+docker compose exec db createdb -U eyetagger_admin -T template0 eyetagger_new
 
 # populate the empty database with the dump
-docker-compose exec db psql -U eyetagger_admin -d eyetagger_new -f /dump.sql
+docker compose exec db psql -U eyetagger_admin -d eyetagger_new -f /dump.sql
 
 # swap database names
-docker-compose exec db psql --username eyetagger_admin --dbname postgres
+docker compose exec db psql --username eyetagger_admin --dbname postgres
 \l
 ALTER DATABASE eyetagger RENAME TO eyetagger_old;
 ALTER DATABASE eyetagger_new RENAME TO eyetagger;
@@ -172,7 +188,7 @@ ALTER DATABASE eyetagger_new RENAME TO eyetagger;
 \q
 
 # get the other services up and try it out!
-docker-compose down && docker-compose up
+docker compose down && docker compose up
 
 # if successful, clean the temporary backup copies
 rm      /tmp/dump.sql.gz     /tmp/dump.sql
@@ -180,28 +196,36 @@ rm      /tmp/dump.sql.gz     /tmp/dump.sql
 
 ## 3. Development Deploy (Default)
 
-1. There are 2 entries `command` under `docker-compose.yaml` > Service `web`. Select the "development" one by commenting out the alternative.
+1. There are 2 entries `command` under `docker compose.yaml` > Service `web`. Select the "development" one by commenting out the alternative.
 
-2. Run `docker-compose up` (run `down` first if already up) and open `localhost:9000`. Hot reload should be enabled i.e. live changes to the front-end code will update the browser.
+2. Run `docker compose up` (run `down` first if already up) and open `localhost:9000`. Hot reload should be enabled i.e. live changes to the front-end code will update the browser.
 
 ## 4. Production Deploy (Optional)
 
 1. Adapt the environment files for the backend in `env/`.
 2. Adapt the environment file for the frontend in `vue.config.js`.
 3. Follow the [Django deployment checklist](https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/) for further configuration.
-4. Deploy the dockerized application in a remote server by running it in daemon form: `docker-compose up -d && docker-compose logs -f`.
+4. Deploy the dockerized application in a remote server by running it in daemon form: `docker compose up -d && docker compose logs -f`.
 
 ## 5. Integrating DVC (Optional)
 
-1. Install `dvc` on host
+1. Install `dvc` on host:
 
-    > `pip install dvc`
+    > `uv tool install dvc`
 
-2. Setup access (using a GCP below)
+    or:
+
+    > `pipx install dvc`
+
+    then check with:
+
+    > `dvc --version`
+
+2. Setup access (using GCP below)
 
     ```sh
     # get provider-specific api
-    pip install 'dvc[gs]'
+    uv tool install 'dvc[gs]' # or pipx install 'dvc[gs]'
 
     # create google bucket credentials
     mkdir -p $HOME/.gcp/
@@ -240,10 +264,10 @@ Below we describe how to do this part B by using a database migration:
     The metadata entries are created by running one or more database migrations. Let's create an empty one with:
 
     ```bash
-    # this assumes your containers are up, make sure to run docker-compose up first
+    # this assumes your containers are up, make sure to run docker compose up first
 
     # below and onwards, "api" is the internal name of the Django app that we are working with
-    docker-compose exec web pipenv run /app/manage.py makemigrations api --name dataset_import --empty
+    docker compose exec web uv run /app/manage.py makemigrations api --name dataset_import --empty
     ```
 
     After this command will have a new Python file in the migrations' directory (e.g. `backend/api/migrations/####_dataset_import.py`).
@@ -289,7 +313,7 @@ Below we describe how to do this part B by using a database migration:
     Only the necessary (new) migrations will be run with the following command:
 
     ```bash
-    docker-compose exec web pipenv run ./manage.py migrate
+    docker compose exec web uv run ./manage.py migrate
     ```
 
     > 💡 After you create (and save) some entries like `Image` objects, you will be able to see them in the Django admin panel (see [dashboards](#22-dashboards) above).
@@ -300,7 +324,7 @@ Below we describe how to do this part B by using a database migration:
 
     ```bash
     # change 0001 below
-    docker-compose exec web pipenv run ./manage.py migrate api 0001
+    docker compose exec web uv run ./manage.py migrate api 0001
     ```
 
     Where `0001` is the number of the **previous** migration (i.e. the number `####` in `backend/api/migrations/####_migration_name.py`).
@@ -312,8 +336,8 @@ Below we describe how to do this part B by using a database migration:
     Above are the best ways to fix migration issues and avoid corruption or data loss. But if losing data is not an issue, you can also delete the database and start over, for example:
 
     ```bash
-    # ⚠️ this will cause data loss
-    docker-compose exec db dropdb -U eyetagger_admin eyetagger
-    docker-compose exec db createdb -U eyetagger_admin eyetagger
-    docker-compose exec web pipenv run /app/manage.py migrate
+    # ⚠️ this will cause data loss ⚠️
+    docker compose exec db dropdb -U eyetagger_admin eyetagger
+    docker compose exec db createdb -U eyetagger_admin eyetagger
+    docker compose exec web uv run /app/manage.py migrate
     ```
