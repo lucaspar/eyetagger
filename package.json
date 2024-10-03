@@ -12,7 +12,7 @@
         "@fortawesome/fontawesome-svg-core": "^1.2.28",
         "@fortawesome/free-solid-svg-icons": "^5.13.0",
         "@fortawesome/vue-fontawesome": "^0.1.9",
-        "@sentry/browser": "^5.15.5",
+        "@sentry/browser": "^8.33.0",
         "@sentry/integrations": "^5.15.5",
         "@vue/babel-preset-app": "^4.4.6",
         "@vue/cli-plugin-babel": "^3.0.0-rc.12",
