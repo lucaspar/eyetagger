@@ -24,7 +24,7 @@
         "global": "^4.4.0",
         "js-cookie": "^2.2.0",
         "paper": "^0.12.4",
-        "vue": "^2.5.17",
+        "vue": "^3.0.0",
         "vue-awesome-notifications": "^3.1.1",
         "vue-cli": "^2.9.6",
         "vue-router": "^3.0.1",
